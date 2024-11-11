@@ -1,0 +1,47 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+jobs:
+  - job: DeployToVM
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      # Step 1: GitHub 아티팩트 다운로드 (GitHub Actions에서 업로드된 경우)
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: 'repository-archive'
+          targetPath: '$(System.DefaultWorkingDirectory)'
+
+      # Step 2: 파일 압축 해제
+      - task: ExtractFiles@1
+        inputs:
+          archiveFilePatterns: '$(System.DefaultWorkingDirectory)/repository.zip'
+          destinationFolder: '$(System.DefaultWorkingDirectory)/repository'
+          cleanDestinationFolder: true
+
+      # Step 3: SSH로 파일 업로드
+      - task: CopyFilesOverSSH@0
+        inputs:
+          sshEndpoint: 'AzureVMConnection'
+          sourceFolder: '$(System.DefaultWorkingDirectory)/repository'
+          contents: '**'
+          targetFolder: '/home/innerjoin/deployment'  
+
+      # Step 4: 기존 실행중인 프로세스 종료
+      - task: SSH@0
+        inputs:
+          sshEndpoint: 'AzureVMConnection'
+          runOptions: 'commands'
+          commands: 'bash /home/innerjoin/deployment/script/stop.sh'  
+
+      # Step 5: WAS 서버 실행
+      - task: SSH@0
+        inputs:
+          sshEndpoint: 'AzureVMConnection'
+          runOptions: 'commands'
+          commands: 'bash /home/innerjoin/deployment/script/start.sh'  
