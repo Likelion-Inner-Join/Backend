@@ -116,8 +116,8 @@ jobs:
 
       # (9) azure blob에 업로드
       # 1. Azure CLI 설정
-      - name: Set up Azure CLI
-        uses: azure/setup-azure-cli@v1
+      - name: Install azure-cli
+        uses: pietrobolcato/install-azure-cli-action@v1.0.1
 
       # 2. Azure 로그인
       - name: Log in to Azure
