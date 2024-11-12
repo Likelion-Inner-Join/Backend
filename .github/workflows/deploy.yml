@@ -136,28 +136,44 @@ jobs:
 
       # (10) Azure DevOps 파이프라인 트리거
       - name: Trigger Azure DevOps Pipeline
-        id: trigger_pipeline
         run: |
-          # Azure DevOps 파이프라인을 트리거
-          response=$(curl -u ":$AZURE_DEVOPS_PAT" \
-            -X POST \
-            -H "Content-Type: application/json" \
-            -d '{
-                "resources": {
-                  "repositories": {
-                    "self": {
-                      "refName": "refs/heads/master"
-                    }
-                  }
-                },
-                "variables": {
-                  "filename": {
-                    "value": "${{ env.FILENAME }}"
-                  }
-                }
-              }' \
-          "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/pipelines/${{ env.AZURE_DEVOPS_PIPELINE_ID }}/runs?api-version=6.0-preview.1")
-          
-          # 트리거된 파이프라인 ID 추출
-          pipeline_id=$(echo "$response" | jq -r '.id')
-          echo "Triggered pipeline with ID: $pipeline_id"
+          az pipelines run \
+            --name Likelion-Inner-Join.Backend \
+            --org https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }} \
+            --project ${{ env.AZURE_DEVOPS_PROJECT }} \
+            --variables filename=${{ env.FILENAME }}
+
+      # (11) Azure DevOps 파이프라인 상태 확인
+      - name: Check Azure DevOps Pipeline Status
+        run: |
+          max_wait_time=300  # 최대 대기 시간 (초)
+          elapsed_time=0
+          sleep_interval=10
+          status="inProgress"
+
+          while [[ "$status" == "inProgress" || "$status" == "queued" ]] && [[ "$elapsed_time" -lt "$max_wait_time" ]]; do
+              echo "Checking pipeline status..."
+              response=$(curl -s -u ":$AZURE_DEVOPS_PAT" \
+                "https://dev.azure.com/$AZURE_DEVOPS_ORG/$AZURE_DEVOPS_PROJECT/_apis/pipelines/$AZURE_DEVOPS_PIPELINE_ID/runs/$pipeline_id?api-version=6.0-preview.1")
+              status=$(echo "$response" | jq -r '.status')
+              sleep $sleep_interval
+              elapsed_time=$((elapsed_time + sleep_interval))
+          done
+
+          if [[ "$elapsed_time" -ge "$max_wait_time" ]]; then
+              echo "Pipeline status check timed out."
+              exit 1
+          fi
+
+      # (12) Azure DevOps 파이프라인 성공 여부 확인
+      - name: Verify Pipeline Success
+        run: |
+          result=$(echo "$response" | jq -r '.result')
+          if [[ "$result" != "succeeded" ]]; then
+              failure_reason=$(echo "$response" | jq -r '.logs' || echo "No specific failure reason provided.")
+              echo "Azure DevOps pipeline failed. Reason:"
+              echo "${failure_reason:0:500}"  # 메시지가 길 경우 자르기
+              exit 1
+          else
+              echo "Azure DevOps pipeline succeeded."
+          fi
