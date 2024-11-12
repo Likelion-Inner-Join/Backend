@@ -122,7 +122,7 @@ jobs:
       # 2. Azure 로그인
       - name: Log in to Azure
         run: |
-          az login --service-principal --username ${{ secrets.AZURE_CLIENT_ID }} --password ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az login --service-principal --username ${{ secrets.AZURE_CLIENT_ID }} --password ${{ secrets.AZURE_CREDENTIALS }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
       # 5. Azure Blob Storage에 파일 업로드
       - name: Upload file to Azure Blob Storage
