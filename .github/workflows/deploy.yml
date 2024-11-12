@@ -137,7 +137,7 @@ jobs:
       # (10) Azure DevOps 파이프라인 트리거
       - name: Trigger Azure DevOps Pipeline
         run: |
-          response=$(curl -u ":${{ env.AZURE_DEVOPS_PAT }}" \
+          response=$(curl -u ":$AZURE_DEVOPS_PAT" \
             -X POST \
             -H "Content-Type: application/json" \
             -d '{
