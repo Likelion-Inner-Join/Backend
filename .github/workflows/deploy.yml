@@ -26,6 +26,8 @@ env:
   MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
   REDIS_HOST: ${{ secrets.REDIS_HOST }}
 
+  FILENAME: $(date +"%Y%m%d_%H%M%S").zip
+
 jobs:
   build-and-upload:
     runs-on: ubuntu-latest
@@ -112,12 +114,14 @@ jobs:
           mkdir -p artifacts
           zip -r artifacts/repository.zip .
 
-      # (9) GitHub Actions 아티팩트로 저장 (선택 사항)
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+      # (9) azure blob에 업로드
+      - name: Upload Artifact to Azure Blob Storage
+        uses: Azure/azure-storage-blob-upload-action@v1
         with:
-          name: repository-archive
-          path: artifacts/repository.zip
+          connection-string: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          container-name: ${{ secrets.AZURE_STORAGE_CONTAINER_NAME }}
+          source: artifacts/repository.zip
+          destination: ${{ env.FILENAME }}
 
       # (10) Azure DevOps 파이프라인 트리거
       - name: Trigger Azure DevOps Pipeline
@@ -127,9 +131,22 @@ jobs:
           response=$(curl -u ":$AZURE_DEVOPS_PAT" \
             -X POST \
             -H "Content-Type: application/json" \
-            -d '{"resources": {"repositories": {"self": {"refName": "refs/heads/master"}}}}' \
-            "https://dev.azure.com/$AZURE_DEVOPS_ORG/$AZURE_DEVOPS_PROJECT/_apis/pipelines/$AZURE_DEVOPS_PIPELINE_ID/runs?api-version=6.0-preview.1")
-
+            -d '{
+                "resources": {
+                  "repositories": {
+                    "self": {
+                      "refName": "refs/heads/master"
+                    }
+                  }
+                },
+                "variables": {
+                  "filename": {
+                    "value": "${{ env.FILENAME }}"
+                  }
+                }
+              }' \
+          "https://dev.azure.com/$AZURE_DEVOPS_ORG/$AZURE_DEVOPS_PROJECT/_apis/pipelines/$AZURE_DEVOPS_PIPELINE_ID/runs?api-version=6.0-preview.1")
+          
           # 트리거된 파이프라인 ID 추출
           pipeline_id=$(echo "$response" | jq -r '.id')
           echo "Triggered pipeline with ID: $pipeline_id"
