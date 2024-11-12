@@ -137,11 +137,27 @@ jobs:
       # (10) Azure DevOps 파이프라인 트리거
       - name: Trigger Azure DevOps Pipeline
         run: |
-          az pipelines run \
-            --name Likelion-Inner-Join.Backend \
-            --org https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }} \
-            --project ${{ env.AZURE_DEVOPS_PROJECT }} \
-            --variables filename=${{ env.FILENAME }}
+          response=$(curl -u ":${{ env.AZURE_DEVOPS_PAT }}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d '{
+                "resources": {
+                  "repositories": {
+                    "self": {
+                      "refName": "refs/heads/master"
+                    }
+                  }
+                },
+                "variables": {
+                  "filename": {
+                    "value": "${{ env.FILENAME }}"
+                  }
+                }
+              }' \
+          "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/pipelines/${{ env.AZURE_DEVOPS_PIPELINE_ID }}/runs?api-version=6.0-preview.1")
+          
+          pipeline_id=$(echo "$response" | jq -r '.id')
+          echo "Triggered pipeline with ID: $pipeline_id"
 
       # (11) Azure DevOps 파이프라인 상태 확인
       - name: Check Azure DevOps Pipeline Status
