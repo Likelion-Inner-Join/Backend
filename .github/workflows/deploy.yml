@@ -140,20 +140,20 @@ jobs:
           response=$(curl -u ":$AZURE_DEVOPS_PAT" \
             -X POST \
             -H "Content-Type: application/json" \
-            -d '{
-                "resources": {
-                  "repositories": {
-                    "self": {
-                      "refName": "refs/heads/master"
+              -d '{
+                    "resources": {
+                      "repositories": {
+                        "self": {
+                          "refName": "refs/heads/master"
+                        }
+                      }
+                    },
+                    "variables": {
+                      "filename": {
+                        "value": "$FILENAME"
+                      }
                     }
-                  }
-                },
-                "variables": {
-                  "filename": {
-                    "value": "${{ env.FILENAME }}"
-                  }
-                }
-              }' \
+                  }' \
           "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/pipelines/${{ env.AZURE_DEVOPS_PIPELINE_ID }}/runs?api-version=6.0-preview.1")
           
           pipeline_id=$(echo "$response" | jq -r '.id')
