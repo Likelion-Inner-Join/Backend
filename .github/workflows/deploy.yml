@@ -142,64 +142,12 @@ jobs:
             --container-name ${{ secrets.AZURE_STORAGE_CONTAINER_NAME }} \
             --file artifacts/repository.zip \
             --name repository.zip
-
-      # (10) Azure DevOps 파이프라인 트리거
-      - name: Trigger Azure DevOps Pipeline
-        run: |
-          response=$(curl -u ":$AZURE_DEVOPS_PAT" \
-            -X POST \
-            -H "Content-Type: application/json" \
-              -d '{
-                    "resources": {
-                      "repositories": {
-                        "self": {
-                          "refName": "refs/heads/master"
-                        }
-                      }
-                    },
-                    "variables": {
-                      "filename": {
-                        "value": "repository.zip"
-                      }
-                    }
-                  }' \
-          "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/pipelines/${{ env.AZURE_DEVOPS_PIPELINE_ID }}/runs?api-version=6.0-preview.1")
           
-          pipeline_id=$(echo "$response" | jq -r '.id')
-          echo "pipeline = $response"
-          echo "Triggered pipeline with ID: $pipeline_id"
 
-      # (11) Azure DevOps 파이프라인 상태 확인
-      - name: Check Azure DevOps Pipeline Status
-        run: |
-          max_wait_time=300  # 최대 대기 시간 (초)
-          elapsed_time=0
-          sleep_interval=20
-          status="inProgress"
-
-          while [[ "$status" == "inProgress" || "$status" == "queued" ]] && [[ "$elapsed_time" -lt "$max_wait_time" ]]; do
-              echo "Checking pipeline status..."
-              response=$(curl -s -f -v -u ":$AZURE_DEVOPS_PAT" \
-                "https://dev.azure.com/$AZURE_DEVOPS_ORG/$AZURE_DEVOPS_PROJECT/_apis/pipelines/$AZURE_DEVOPS_PIPELINE_ID/runs/$pipeline_id?api-version=6.0-preview.1")
-              sleep $sleep_interval
-              status=$(echo "$response" | jq -r '.status')
-              elapsed_time=$((elapsed_time + sleep_interval))
-          done
-
-          if [[ "$elapsed_time" -ge "$max_wait_time" ]]; then
-              echo "Pipeline status check timed out."
-              exit 1
-          fi
-
-      # (12) Azure DevOps 파이프라인 성공 여부 확인
-      - name: Verify Pipeline Success
-        run: |
-          result=$(echo "$response" | jq -r '.result')
-          if [[ "$result" != "succeeded" ]]; then
-              failure_reason=$(echo "$response" | jq -r '.logs' || echo "No specific failure reason provided.")
-              echo "Azure DevOps pipeline failed. Reason:"
-              echo "${failure_reason:0:500}"  # 메시지가 길 경우 자르기
-              exit 1
-          else
-              echo "Azure DevOps pipeline succeeded."
-          fi
+      - name: Azure Pipelines Action with Result Check
+        uses: gaoruhao/azure-pipeline-github-action@v1.6
+        with:
+          azure-devops-project-url: 'https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}'
+          azure-pipeline-name: 'Likelion-Inner-Join.Backend' # name of the Azure pipeline to be triggered
+          azure-devops-token: '${{ secrets.AZURE_DEVOPS_PAT }}'
+          azure-pipeline-variables:  '{"filename": "repository.zip"}' # optional stringified json
