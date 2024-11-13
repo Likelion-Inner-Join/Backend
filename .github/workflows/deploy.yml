@@ -144,8 +144,8 @@ jobs:
             --name repository.zip
           
 
-      - name: Azure Pipelines Action with Result Check
-        uses: gaoruhao/azure-pipeline-github-action@v1.6
+      - name: Azure Pipelines Action
+        uses: Azure/pipelines@v1.2
         with:
           azure-devops-project-url: 'https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}'
           azure-pipeline-name: 'Likelion-Inner-Join.Backend' # name of the Azure pipeline to be triggered
