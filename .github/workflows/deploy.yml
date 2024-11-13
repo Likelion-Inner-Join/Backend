@@ -17,8 +17,14 @@ env:
   # AZURE 관 환경변수
   AZURE_DEVOPS_ORG: "${{ secrets.AZURE_DEVOPS_ORGANICATION }}"
   AZURE_DEVOPS_PROJECT: "${{ secrets.AZURE_DEVOPS_PROJECT }}"
-  AZURE_DEVOPS_PIPELINE_ID: "1"
   AZURE_DEVOPS_PAT: "${{ secrets.AZURE_DEVOPS_PAT }}"
+  AZURE_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+  AZURE_CLIENT_SECRET: "${{ secrets.AZURE_CLIENT_SECRET }}"
+  AZURE_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+
+  AZURE_STORAGE_ACCOUNT_NAME: "${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}"
+  AZURE_STORAGE_ACCOUNT_KEY: "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}"
+  AZURE_STORAGE_CONTAINER_NAME: "${{ secrets.AZURE_STORAGE_CONTAINER_NAME }}"
 
   # APP 관련 환경변수
   MYSQL_ROOT_PWD: ${{ secrets.MYSQL_ROOT_PWD }}
@@ -121,25 +127,25 @@ jobs:
       # 2. Azure 로그인
       - name: Log in to Azure
         run: |
-          az login --service-principal --username ${{ secrets.AZURE_CLIENT_ID }} --password ${{ secrets.AZURE_CLIENT_SECRET  }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az login --service-principal --username ${{ env.AZURE_CLIENT_ID }} --password ${{ env.AZURE_CLIENT_SECRET  }} --tenant ${{ env.AZURE_TENANT_ID }}
 
 
       # 기존 파일 삭제
       - name: Clear folder in Azure Blob Storage
         run: |
           az storage blob delete-batch \
-            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
-            --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
-            --source ${{ secrets.AZURE_STORAGE_CONTAINER_NAME }} \
+            --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} \
+            --account-key ${{ env.AZURE_STORAGE_ACCOUNT_KEY }} \
+            --source ${{ env.AZURE_STORAGE_CONTAINER_NAME }} \
             --pattern "*"
 
       # 5. Azure Blob Storage에 파일 업로드
       - name: Upload file to Azure Blob Storage
         run: |
           az storage blob upload \
-            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
-            --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
-            --container-name ${{ secrets.AZURE_STORAGE_CONTAINER_NAME }} \
+            --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} \
+            --account-key ${{ env.AZURE_STORAGE_ACCOUNT_KEY }} \
+            --container-name ${{ env.AZURE_STORAGE_CONTAINER_NAME }} \
             --file artifacts/repository.zip \
             --name repository.zip
           
@@ -149,5 +155,5 @@ jobs:
         with:
           azure-devops-project-url: 'https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}'
           azure-pipeline-name: 'Likelion-Inner-Join.Backend' # name of the Azure pipeline to be triggered
-          azure-devops-token: '${{ secrets.AZURE_DEVOPS_PAT }}'
+          azure-devops-token: '${{ env.AZURE_DEVOPS_PAT }}'
           azure-pipeline-variables:  '{"filename": "repository.zip"}' # optional stringified json
