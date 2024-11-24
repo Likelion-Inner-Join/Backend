@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -46,4 +47,7 @@ public class Post extends DataEntity {
 
     @Column(name = "recruitment_type")
     private String recruitment_type;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<PostImage> imageList;
 }
