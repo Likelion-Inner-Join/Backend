@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "application")
 @Data
@@ -28,6 +30,6 @@ public class Application extends DataEntity {
     @JoinColumn(name = "applicant_id")
     private Applicant applicant;
 
-
-
+    @OneToMany(mappedBy = "application", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Response> responseList;
 }

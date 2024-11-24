@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "meeting_time")
@@ -37,4 +38,7 @@ public class MeetingTime extends DataEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recruiting_id")
     private Recruiting recruiting;
+
+    @OneToMany(mappedBy = "meeting_time", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Application> applicationList;
 }

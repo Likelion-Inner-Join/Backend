@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 
 @Entity
 @Table(name = "form")
@@ -28,4 +30,7 @@ public class Form extends DataEntity {
 
     private String title;
     private String description;
+
+    @OneToMany(mappedBy = "form", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Question> questionList;
 }

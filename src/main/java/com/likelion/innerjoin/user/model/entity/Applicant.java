@@ -1,11 +1,14 @@
 package com.likelion.innerjoin.user.model.entity;
 
 import com.likelion.innerjoin.common.entity.DataEntity;
+import com.likelion.innerjoin.post.model.entity.Application;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "applicant")
@@ -32,4 +35,7 @@ public class Applicant extends DataEntity {
     private String major;
     @Column(name = "phone_number")
     private String phoneNum;
+
+    @OneToMany(mappedBy = "applicant", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Application> applicationList;
 }

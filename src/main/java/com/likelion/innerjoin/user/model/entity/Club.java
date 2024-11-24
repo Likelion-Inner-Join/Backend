@@ -1,11 +1,15 @@
 package com.likelion.innerjoin.user.model.entity;
 
 import com.likelion.innerjoin.common.entity.DataEntity;
+import com.likelion.innerjoin.post.model.entity.Form;
+import com.likelion.innerjoin.post.model.entity.Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 
 @Entity
@@ -31,4 +35,9 @@ public class Club extends DataEntity {
     @Column(name = "cate_list")
     private String categoryList;
 
+    @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Post> postList;
+
+    @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Form> formList;
 }

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "recruiting")
 @Data
@@ -28,4 +30,7 @@ public class Recruiting {
 
     @Column(name = "job_title")
     private String jobTitle;
+
+    @OneToMany(mappedBy = "recruiting", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Application> application;
 }
