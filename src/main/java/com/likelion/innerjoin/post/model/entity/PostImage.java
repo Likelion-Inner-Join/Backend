@@ -7,7 +7,7 @@ public class PostImage extends DataEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_id")
+    @Column(name = "image_id")
     private Long id;
 
     @Column(name = "image_url")
