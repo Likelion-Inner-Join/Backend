@@ -30,6 +30,18 @@ public class Application extends DataEntity {
     @JoinColumn(name = "applicant_id")
     private Applicant applicant;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_time_id")
+    private MeetingTime meetingTime;
+
+    @Column(name = "form_result")
+    @Enumerated(EnumType.STRING)
+    private ResultType formResult;
+
+    @Column(name = "meeting_result")
+    @Enumerated(EnumType.STRING)
+    private ResultType meetingResult;
+
     @OneToMany(mappedBy = "application", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Response> responseList;
 }
