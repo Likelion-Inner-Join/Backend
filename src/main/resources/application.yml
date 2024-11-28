@@ -16,3 +16,7 @@ spring:
             hibernate:
                 default_batch_fetch_size: 500
                 format_sql: true
+server:
+    servlet:
+      session:
+          timeout: 30m
