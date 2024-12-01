@@ -32,13 +32,13 @@ public class FormService {
         Long userId = (Long) session.getAttribute("userId");
         String role = (String) session.getAttribute("role");
 
-        if( userId == null ){
+        if( userId == null || !role.equals("club") ){
             throw new UnauthorizedException("잘못된 유저입니다.");
         }
 
         Club club = clubRepository.findById(userId).orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
 
-        List<Question> questionList = new ArrayList<Question>();
+        List<Question> questionList = new ArrayList<>();
         for( QuestionRequestDto question : formRequestDto.getQuestionList() ){
             questionList.add(
                     Question.builder()
