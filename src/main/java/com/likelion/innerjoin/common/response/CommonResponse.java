@@ -30,14 +30,14 @@ public class CommonResponse<T> {
 
     // 오류 발생 (result 없음)
     public CommonResponse(ErrorCode errorCode) {
-        this.isSuccess = ErrorCode.SUCCESS.getIsSuccess();
+        this.isSuccess = errorCode.getIsSuccess();
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();
     }
 
     // 오류 발생
     public CommonResponse(ErrorCode errorCode, T result) {
-        this.isSuccess = ErrorCode.SUCCESS.getIsSuccess();
+        this.isSuccess = errorCode.getIsSuccess();
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();
         this.result = result;
