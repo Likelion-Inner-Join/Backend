@@ -20,3 +20,10 @@ server:
     servlet:
       session:
           timeout: 30m
+
+springdoc:
+    api-docs:
+        enabled: true
+    swagger-ui:
+        enabled: true
+
