@@ -29,7 +29,13 @@ public class FormService {
             throw new UnauthorizedException("잘못된 접근입니다.");
         }
 
-        Long userId = (Long) session.getAttribute("userId");
+        if( session.getAttribute("userId") == null || session.getAttribute("role") == null ){
+            throw new UnauthorizedException("잘못된 접근입니다.");
+        }
+
+        Integer userIdInteger = (Integer) session.getAttribute("userId"); // Integer로 가져오기
+        Long userId = userIdInteger != null ? userIdInteger.longValue() : null; // Long으로 변환
+
         String role = (String) session.getAttribute("role");
 
         if( userId == null || !role.equals("club") ){
@@ -39,16 +45,20 @@ public class FormService {
         Club club = clubRepository.findById(userId).orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
 
         List<Question> questionList = new ArrayList<>();
-        for( QuestionRequestDto question : formRequestDto.getQuestionList() ){
-            questionList.add(
-                    Question.builder()
-                            .number(question.getNumber())
-                            .content(question.getQuestion())
-                            .questionType(question.getType())
-                            .list(question.getList())
-                            .build()
-            );
+
+        if(formRequestDto.getQuestionList() != null){
+            for( QuestionRequestDto question : formRequestDto.getQuestionList() ){
+                questionList.add(
+                        Question.builder()
+                                .number(question.getNumber())
+                                .content(question.getQuestion())
+                                .questionType(question.getType())
+                                .list(question.getList())
+                                .build()
+                );
+            }
         }
+
         Form form = formRepository.save(
                 Form.builder()
                         .club(club)
