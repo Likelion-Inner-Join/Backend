@@ -3,13 +3,16 @@ package com.likelion.innerjoin.post.service;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
 import com.likelion.innerjoin.post.model.dto.request.FormRequestDto;
 import com.likelion.innerjoin.post.model.dto.request.QuestionRequestDto;
+import com.likelion.innerjoin.post.model.dto.response.FormListResponseDto;
 import com.likelion.innerjoin.post.model.dto.response.FormResponseDto;
 import com.likelion.innerjoin.post.model.entity.Form;
 import com.likelion.innerjoin.post.model.entity.Question;
 import com.likelion.innerjoin.post.model.mapper.FormMapper;
 import com.likelion.innerjoin.post.repository.FormRepository;
 import com.likelion.innerjoin.user.model.entity.Club;
+import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.repository.ClubRepository;
+import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,26 +26,14 @@ public class FormService {
     private final ClubRepository clubRepository;
     private final FormRepository formRepository;
     private final FormMapper formMapper;
+    private final SessionVerifier sessionVerifier;
 
     public FormResponseDto createForm(FormRequestDto formRequestDto, HttpSession session) {
-        if( session == null ){
-            throw new UnauthorizedException("잘못된 접근입니다.");
+
+        User user = sessionVerifier.verifySession(session);
+        if(!(user instanceof Club club)){
+            throw new UnauthorizedException("권한이 없습니다.");
         }
-
-        if( session.getAttribute("userId") == null || session.getAttribute("role") == null ){
-            throw new UnauthorizedException("잘못된 접근입니다.");
-        }
-
-        Integer userIdInteger = (Integer) session.getAttribute("userId"); // Integer로 가져오기
-        Long userId = userIdInteger != null ? userIdInteger.longValue() : null; // Long으로 변환
-
-        String role = (String) session.getAttribute("role");
-
-        if( userId == null || !role.equals("club") ){
-            throw new UnauthorizedException("잘못된 유저입니다.");
-        }
-
-        Club club = clubRepository.findById(userId).orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
 
         List<Question> questionList = new ArrayList<>();
 
@@ -69,5 +60,23 @@ public class FormService {
         );
 
         return formMapper.toFormResponseDto(form);
+    }
+
+    public List<FormListResponseDto> getPostList(HttpSession session){
+        User user = sessionVerifier.verifySession(session);
+        if(!(user instanceof Club club)){
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        List<Form> formList = formRepository.findAllByClub(club);
+        List<FormListResponseDto> formListResponseDtoList = new ArrayList<>();
+        for( Form form : formList ){
+            FormListResponseDto formListResponseDto = new FormListResponseDto();
+            formListResponseDto.setId(form.getId());
+            formListResponseDto.setTitle(form.getTitle());
+            formListResponseDto.setDescription(form.getDescription());
+            formListResponseDto.setModifiedAt(form.getModifiedAt());
+            formListResponseDtoList.add(formListResponseDto);
+        }
+        return formListResponseDtoList;
     }
 }
