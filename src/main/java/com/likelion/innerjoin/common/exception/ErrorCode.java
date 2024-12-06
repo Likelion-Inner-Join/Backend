@@ -21,8 +21,11 @@ public enum ErrorCode {
     APPLICANT_NOT_FOUNT(false, HttpStatus.UNAUTHORIZED.value(), "이메일 또는 비밀번호가 잘못되었습니다"),
 
     //error
-    INTERNAL_SERVER_ERROR(false,HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부에서 문제가 발생했습니다.")
+    INTERNAL_SERVER_ERROR(false,HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부에서 문제가 발생했습니다."),
+    POST_NOT_FOUND(false, 404, "Post not found."),
     ;
+
+
 
     private final Boolean isSuccess;
     private final int code;

@@ -25,10 +25,11 @@ public class Form extends DataEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name  = "club_id")
+    @JoinColumn(name = "club_id")
     private Club club;
 
     private String title;
+
     private String description;
 
     @OneToMany(mappedBy = "form", orphanRemoval = true, cascade = CascadeType.ALL)

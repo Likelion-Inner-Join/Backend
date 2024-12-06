@@ -31,12 +31,15 @@ public class Post extends DataEntity {
     private Club club;
 
     private String title;
+
     @Column(name = "start_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
+
     @Column(name = "end_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
+
     private String body;
 
     @Enumerated(EnumType.STRING)
@@ -46,7 +49,7 @@ public class Post extends DataEntity {
     private String recruitmentCount;
 
     @Column(name = "recruitment_type")
-    private String recruitment_type;
+    private String recruitmentType;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<PostImage> imageList;
