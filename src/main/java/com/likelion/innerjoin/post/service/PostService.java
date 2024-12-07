@@ -54,6 +54,11 @@ public class PostService {
      * @return PostResponseDTO
      */
     private PostResponseDTO toPostResponseDTO(Post post) {
+        // PostImage 리스트를 PostImageDTO로 변환
+        List<PostResponseDTO.PostImageDTO> imageDTOs = post.getImageList().stream()
+                .map(image -> new PostResponseDTO.PostImageDTO(image.getId(), image.getUrl()))
+                .collect(Collectors.toList());
+
         return PostResponseDTO.builder()
                 .postId(post.getId())
                 .clubId(post.getClub().getId())
@@ -64,7 +69,8 @@ public class PostService {
                 .endTime(post.getEndTime())
                 .status(post.getStatus().toString())
                 .recruitmentType(post.getRecruitmentType())
-                .recruitmentCount(Integer.parseInt(post.getRecruitmentCount()))
+                .recruitmentCount(post.getRecruitmentCount())
+                .image(imageDTOs)
                 .build();
     }
 }
