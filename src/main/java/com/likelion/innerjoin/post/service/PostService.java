@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,8 +35,20 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    // 특정 포스트 조회
+    public PostResponseDTO getPostById(Long postId) {
+        Optional<Post> postOptional = postRepository.findById(postId);
+
+        if (postOptional.isPresent()) {
+            Post post = postOptional.get();
+            return toPostResponseDTO(post);
+        } else {
+            return null;  // 해당 post가 없다면 null 반환
+        }
+    }
+
     /**
-     * Converts a Post entity to PostResponseDTO.
+     * Post 엔티티를 PostResponseDTO로 변환
      *
      * @param post Post entity
      * @return PostResponseDTO
