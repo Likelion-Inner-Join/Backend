@@ -23,16 +23,22 @@ public class Club extends DataEntity implements User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "club_id")
-    private Integer id;
+    private Long id;
 
     private String name;
+
     @Column(name = "image_url")
     private String imageUrl;
+
     private String school;
+
     private String email;
+
     private String password;
-    @Column(name = "id", unique = true, nullable = false)
+
+    @Column(name = "login_id", unique = true, nullable = false)
     private String loginId;
+
     @Column(name = "cate_list")
     private String categoryList;
 
