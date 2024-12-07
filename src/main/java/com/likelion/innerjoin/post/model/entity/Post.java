@@ -46,7 +46,7 @@ public class Post extends DataEntity {
     private RecruitmentStatus status;
 
     @Column(name = "recruitment_count")
-    private String recruitmentCount;
+    private Integer recruitmentCount;
 
     @Column(name = "recruitment_type")
     private String recruitmentType;

@@ -18,6 +18,11 @@ public class PostService {
     public List<PostResponseDTO> getAllPosts() {
         List<Post> posts = postRepository.findAll();  // 게시글 목록을 데이터베이스에서 가져옴
 
+        // 게시글이 없을 경우 예외 발생
+        if (posts.isEmpty()) {
+            throw new PostNotFoundException("No posts found.");
+        }
+
         // Post 엔티티 리스트를 PostResponseDTO로 변환
         return posts.stream()
                 .map(post -> toPostResponseDTO(post))  // Post -> PostResponseDTO 변환
