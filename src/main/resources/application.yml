@@ -3,12 +3,9 @@ spring:
         name: innerjoin
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/innerjoin
-        username: root
-        password: root
-#        password: ${MYSQL_PASSWORD}
-#        url: ${MYSQL_URL}
-#        username: ${MYSQL_USERNAME}
+        password: ${MYSQL_PASSWORD}
+        url: ${MYSQL_URL}
+        username: ${MYSQL_USERNAME}
 
     jpa:
         open-in-view: true
