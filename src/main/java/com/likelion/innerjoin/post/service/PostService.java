@@ -1,5 +1,6 @@
 package com.likelion.innerjoin.post.service;
 
+import com.likelion.innerjoin.post.exception.PostNotFoundException;
 import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
 import com.likelion.innerjoin.post.model.entity.Post;
 import com.likelion.innerjoin.post.repository.PostRepository;
@@ -15,17 +16,30 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
+    /**
+     * Fetch all posts from the database.
+     *
+     * @return List of PostResponseDTO
+     */
     public List<PostResponseDTO> getAllPosts() {
-        List<Post> posts = postRepository.findAll();  // 게시글 목록을 데이터베이스에서 가져옴
+        List<Post> posts = postRepository.findAll();
 
+        // If no posts are found, throw PostNotFoundException
+        if (posts.isEmpty()) {
+            throw new PostNotFoundException();
+        }
 
-        // Post 엔티티 리스트를 PostResponseDTO로 변환
         return posts.stream()
-                .map(post -> toPostResponseDTO(post))  // Post -> PostResponseDTO 변환
+                .map(this::toPostResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    // Post 엔티티를 PostResponseDTO로 변환하는 메서드
+    /**
+     * Converts a Post entity to PostResponseDTO.
+     *
+     * @param post Post entity
+     * @return PostResponseDTO
+     */
     private PostResponseDTO toPostResponseDTO(Post post) {
         return PostResponseDTO.builder()
                 .postId(post.getId())
@@ -37,10 +51,7 @@ public class PostService {
                 .endTime(post.getEndTime())
                 .status(post.getStatus().toString())
                 .recruitmentType(post.getRecruitmentType())
-                .recruitmentCount(Integer.parseInt(post.getRecruitmentCount()))  // String -> Integer 변환
-                .image(post.getImageList().stream()
-                        .map(image -> new PostResponseDTO.PostImageDTO(image.getId(), image.getUrl()))
-                        .collect(Collectors.toList()))
+                .recruitmentCount(Integer.parseInt(post.getRecruitmentCount()))
                 .build();
     }
 }
