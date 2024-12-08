@@ -9,6 +9,7 @@ import com.likelion.innerjoin.post.model.dto.response.FormResponseDto;
 import com.likelion.innerjoin.post.model.entity.Form;
 import com.likelion.innerjoin.post.model.entity.Question;
 import com.likelion.innerjoin.post.model.mapper.FormMapper;
+import com.likelion.innerjoin.post.model.mapper.QuestionMapper;
 import com.likelion.innerjoin.post.repository.FormRepository;
 import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
@@ -28,7 +29,14 @@ public class FormService {
     private final FormRepository formRepository;
     private final FormMapper formMapper;
     private final SessionVerifier sessionVerifier;
+    private final QuestionMapper questionMapper;
 
+    /**
+     * 지원폼 생성
+     * @param formRequestDto 지원폼 정보
+     * @param session 세션 정보
+     * @return 생성된 지원폼
+     */
     public FormResponseDto createForm(FormRequestDto formRequestDto, HttpSession session) {
 
         User user = sessionVerifier.verifySession(session);
@@ -41,28 +49,16 @@ public class FormService {
                 .title(formRequestDto.getTitle())
                 .description(formRequestDto.getDescription())
                 .build();
-
-        List<Question> questionList = new ArrayList<>();
-
-        if (formRequestDto.getQuestionList() != null) {
-            for (QuestionRequestDto question : formRequestDto.getQuestionList()) {
-                questionList.add(
-                        Question.builder()
-                                .number(question.getNumber())
-                                .content(question.getQuestion())
-                                .questionType(question.getType())
-                                .list(question.getList())
-                                .form(form)
-                                .build()
-                );
-            }
-        }
-
-        form.setQuestionList(questionList);
+        form.setQuestionList(questionMapper.toQuestionList(formRequestDto.getQuestionList(), form));
 
         return formMapper.toFormResponseDto(formRepository.save(form));
     }
 
+    /**
+     * 지원폼 목록 조회 api
+     * @param session 세션 정보
+     * @return 조회된 지원폼 리스트
+     */
     public List<FormListResponseDto> getFormList(HttpSession session) {
         User user = sessionVerifier.verifySession(session);
         if (!(user instanceof Club club)) {
@@ -81,6 +77,12 @@ public class FormService {
         return formListResponseDtoList;
     }
 
+    /**
+     * 지원폼 상세조회 api
+     * @param session 세션정보
+     * @param formId 지원폼 id
+     * @return 조회된 지원폼
+     */
     public FormResponseDto getForm(HttpSession session, Long formId) {
         User user = sessionVerifier.verifySession(session);
         if (!(user instanceof Club club)) {
@@ -91,5 +93,30 @@ public class FormService {
             throw new UnauthorizedException("권한이 없습니다.");
         }
         return formMapper.toFormResponseDto(form);
+    }
+
+    /**
+     * form 수정
+     * @param session 세션 정보
+     * @param formRequestDto 수정할 내용
+     * @param formId form id
+     * @return 수정된 form
+     */
+    public FormResponseDto updateForm(HttpSession session, FormRequestDto formRequestDto, Long formId) {
+        User user = sessionVerifier.verifySession(session);
+        if (!(user instanceof Club club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        Form form = formRepository.findById(formId).orElseThrow(() -> new FormNotFoundException("id: " + formId + " 지원폼이 존재하지 않습니다."));
+        if (!form.getClub().equals(club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+
+        form.setTitle(formRequestDto.getTitle());
+        form.setDescription(formRequestDto.getDescription());
+        form.getQuestionList().clear();
+        form.getQuestionList().addAll(questionMapper.toQuestionList(formRequestDto.getQuestionList(), form));
+
+        return formMapper.toFormResponseDto(formRepository.save(form));
     }
 }
