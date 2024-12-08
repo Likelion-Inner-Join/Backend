@@ -38,19 +38,12 @@ public class FormService {
      * @return 생성된 지원폼
      */
     public FormResponseDto createForm(FormRequestDto formRequestDto, HttpSession session) {
-
-        User user = sessionVerifier.verifySession(session);
-        if (!(user instanceof Club club)) {
-            throw new UnauthorizedException("권한이 없습니다.");
-        }
-
         Form form = Form.builder()
-                .club(club)
+                .club(checkClub(session))
                 .title(formRequestDto.getTitle())
                 .description(formRequestDto.getDescription())
                 .build();
         form.setQuestionList(questionMapper.toQuestionList(formRequestDto.getQuestionList(), form));
-
         return formMapper.toFormResponseDto(formRepository.save(form));
     }
 
@@ -60,11 +53,7 @@ public class FormService {
      * @return 조회된 지원폼 리스트
      */
     public List<FormListResponseDto> getFormList(HttpSession session) {
-        User user = sessionVerifier.verifySession(session);
-        if (!(user instanceof Club club)) {
-            throw new UnauthorizedException("권한이 없습니다.");
-        }
-        List<Form> formList = formRepository.findAllByClub(club);
+        List<Form> formList = formRepository.findAllByClub(checkClub(session));
         List<FormListResponseDto> formListResponseDtoList = new ArrayList<>();
         for (Form form : formList) {
             FormListResponseDto formListResponseDto = new FormListResponseDto();
@@ -84,12 +73,8 @@ public class FormService {
      * @return 조회된 지원폼
      */
     public FormResponseDto getForm(HttpSession session, Long formId) {
-        User user = sessionVerifier.verifySession(session);
-        if (!(user instanceof Club club)) {
-            throw new UnauthorizedException("권한이 없습니다.");
-        }
         Form form = formRepository.findById(formId).orElseThrow(() -> new FormNotFoundException("id: " + formId + " 지원폼이 존재하지 않습니다."));
-        if (!form.getClub().equals(club)) {
+        if (!form.getClub().equals(checkClub(session))) {
             throw new UnauthorizedException("권한이 없습니다.");
         }
         return formMapper.toFormResponseDto(form);
@@ -103,12 +88,8 @@ public class FormService {
      * @return 수정된 form
      */
     public FormResponseDto updateForm(HttpSession session, FormRequestDto formRequestDto, Long formId) {
-        User user = sessionVerifier.verifySession(session);
-        if (!(user instanceof Club club)) {
-            throw new UnauthorizedException("권한이 없습니다.");
-        }
         Form form = formRepository.findById(formId).orElseThrow(() -> new FormNotFoundException("id: " + formId + " 지원폼이 존재하지 않습니다."));
-        if (!form.getClub().equals(club)) {
+        if (!form.getClub().equals(checkClub(session))) {
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
@@ -118,5 +99,23 @@ public class FormService {
         form.getQuestionList().addAll(questionMapper.toQuestionList(formRequestDto.getQuestionList(), form));
 
         return formMapper.toFormResponseDto(formRepository.save(form));
+    }
+
+    public Long deleteForm(HttpSession session, Long formId) {
+        Form form = formRepository.findById(formId).orElseThrow(() -> new FormNotFoundException("id: " + formId + " 지원폼이 존재하지 않습니다."));
+        if (!form.getClub().equals(checkClub(session))) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        formRepository.delete(form);
+        return form.getId();
+    }
+
+
+    Club checkClub(HttpSession session) {
+        User user = sessionVerifier.verifySession(session);
+        if (!(user instanceof Club club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        return club;
     }
 }

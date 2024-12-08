@@ -63,4 +63,15 @@ public class FormController {
     public CommonResponse<FormResponseDto> updateForm(@PathVariable Long formId, @RequestBody FormRequestDto formRequestDto, HttpSession session) {
         return new CommonResponse<>(formService.updateForm(session, formRequestDto, formId));
     }
+
+    @DeleteMapping("/{formId}")
+    @Operation(summary = "지원폼 삭제 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공적인 응답"),
+            @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다."),
+            @ApiResponse(responseCode = "404", description = "해당 id의 지원폼이 존재하지 않습니다.")
+    })
+    public CommonResponse<Long> deleteForm(@PathVariable Long formId, HttpSession session) {
+        return new CommonResponse<>(formService.deleteForm(session, formId));
+    }
 }
