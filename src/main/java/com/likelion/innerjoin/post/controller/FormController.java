@@ -41,4 +41,15 @@ public class FormController {
     public CommonResponse<List<FormListResponseDto>> getFormList(HttpSession session) {
         return new CommonResponse<>(formService.getFormList(session));
     }
+
+    @GetMapping("/{formId}")
+    @Operation(summary = "지원폼 상세 조회 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공적인 응답"),
+            @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다."),
+            @ApiResponse(responseCode = "404", description = "해당 id의 지원폼이 존재하지 않습니다.")
+    })
+    public CommonResponse<FormResponseDto> getForm(@PathVariable Long formId, HttpSession session) {
+        return new CommonResponse<>(formService.getForm(session, formId));
+    }
 }

@@ -1,5 +1,6 @@
 package com.likelion.innerjoin.post.service;
 
+import com.likelion.innerjoin.post.exception.FormNotFoundException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
 import com.likelion.innerjoin.post.model.dto.request.FormRequestDto;
 import com.likelion.innerjoin.post.model.dto.request.QuestionRequestDto;
@@ -31,45 +32,45 @@ public class FormService {
     public FormResponseDto createForm(FormRequestDto formRequestDto, HttpSession session) {
 
         User user = sessionVerifier.verifySession(session);
-        if(!(user instanceof Club club)){
+        if (!(user instanceof Club club)) {
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
+        Form form = Form.builder()
+                .club(club)
+                .title(formRequestDto.getTitle())
+                .description(formRequestDto.getDescription())
+                .build();
+
         List<Question> questionList = new ArrayList<>();
 
-        if(formRequestDto.getQuestionList() != null){
-            for( QuestionRequestDto question : formRequestDto.getQuestionList() ){
+        if (formRequestDto.getQuestionList() != null) {
+            for (QuestionRequestDto question : formRequestDto.getQuestionList()) {
                 questionList.add(
                         Question.builder()
                                 .number(question.getNumber())
                                 .content(question.getQuestion())
                                 .questionType(question.getType())
                                 .list(question.getList())
+                                .form(form)
                                 .build()
                 );
             }
         }
 
-        Form form = formRepository.save(
-                Form.builder()
-                        .club(club)
-                        .questionList(questionList)
-                        .title(formRequestDto.getTitle())
-                        .description(formRequestDto.getDescription())
-                        .build()
-        );
+        form.setQuestionList(questionList);
 
-        return formMapper.toFormResponseDto(form);
+        return formMapper.toFormResponseDto(formRepository.save(form));
     }
 
-    public List<FormListResponseDto> getFormList(HttpSession session){
+    public List<FormListResponseDto> getFormList(HttpSession session) {
         User user = sessionVerifier.verifySession(session);
-        if(!(user instanceof Club club)){
+        if (!(user instanceof Club club)) {
             throw new UnauthorizedException("권한이 없습니다.");
         }
         List<Form> formList = formRepository.findAllByClub(club);
         List<FormListResponseDto> formListResponseDtoList = new ArrayList<>();
-        for( Form form : formList ){
+        for (Form form : formList) {
             FormListResponseDto formListResponseDto = new FormListResponseDto();
             formListResponseDto.setId(form.getId());
             formListResponseDto.setTitle(form.getTitle());
@@ -78,5 +79,17 @@ public class FormService {
             formListResponseDtoList.add(formListResponseDto);
         }
         return formListResponseDtoList;
+    }
+
+    public FormResponseDto getForm(HttpSession session, Long formId) {
+        User user = sessionVerifier.verifySession(session);
+        if (!(user instanceof Club club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        Form form = formRepository.findById(formId).orElseThrow(() -> new FormNotFoundException("id: " + formId + " 지원폼이 존재하지 않습니다."));
+        if (!form.getClub().equals(club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        return formMapper.toFormResponseDto(form);
     }
 }
