@@ -20,13 +20,13 @@ public class FormController {
     private final FormService formService;
 
     @PostMapping("")
-    public CommonResponse<FormResponseDto> createPost(@RequestBody FormRequestDto formRequestDto, HttpSession session) {
+    public CommonResponse<FormResponseDto> createForm(@RequestBody FormRequestDto formRequestDto, HttpSession session) {
         return new CommonResponse<>(formService.createForm(formRequestDto, session));
     }
 
     @GetMapping("")
-    public CommonResponse<List<FormListResponseDto>> getPostList(HttpSession session) {
-        return new CommonResponse<>(formService.getPostList(session));
+    public CommonResponse<List<FormListResponseDto>> getFormList(HttpSession session) {
+        return new CommonResponse<>(formService.getFormList(session));
     }
 
 

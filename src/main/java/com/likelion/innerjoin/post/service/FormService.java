@@ -62,7 +62,7 @@ public class FormService {
         return formMapper.toFormResponseDto(form);
     }
 
-    public List<FormListResponseDto> getPostList(HttpSession session){
+    public List<FormListResponseDto> getFormList(HttpSession session){
         User user = sessionVerifier.verifySession(session);
         if(!(user instanceof Club club)){
             throw new UnauthorizedException("권한이 없습니다.");
