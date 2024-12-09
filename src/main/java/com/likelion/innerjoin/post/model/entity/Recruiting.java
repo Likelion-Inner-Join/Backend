@@ -31,6 +31,9 @@ public class Recruiting {
     @Column(name = "job_title")
     private String jobTitle;
 
+    @Column(name = "recruitment_type")
+    private String recruitmentType;
+
     @OneToMany(mappedBy = "recruiting", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Application> application;
 }

@@ -46,9 +46,9 @@ public class Post extends DataEntity {
     @Column(name = "recruitment_count")
     private Integer recruitmentCount;
 
-    @Column(name = "recruitment_type")
-    private String recruitmentType;
-
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<PostImage> imageList;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Recruiting> recruitingList;
 }
