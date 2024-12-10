@@ -3,6 +3,7 @@ package com.likelion.innerjoin.post.controller;
 
 import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.common.response.CommonResponse;
+import com.likelion.innerjoin.post.model.dto.request.ApplicationPutRequestDto;
 import com.likelion.innerjoin.post.model.dto.request.ApplicationRequestDto;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
 import com.likelion.innerjoin.post.model.entity.Application;
@@ -58,6 +59,16 @@ public class ApplicationController {
     })
     public CommonResponse<List<ApplicationDto>> getApplicationList(HttpSession session) {
         return new CommonResponse<>(applicationService.getApplicationList(session));
+    }
+
+    @PutMapping("/application/{application_id}")
+    @Operation(summary = "지원서 정보 수정용 api (동아리용)")
+    public CommonResponse<ApplicationDto> updateApplication(
+            @RequestBody ApplicationPutRequestDto applicationPutRequestDto,
+            @PathVariable("application_id") Long applicationId,
+            HttpSession session) {
+        return new CommonResponse<>(
+                applicationService.updateApplication(applicationPutRequestDto, applicationId, session));
     }
 
 

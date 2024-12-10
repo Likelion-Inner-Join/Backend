@@ -1,23 +1,17 @@
 package com.likelion.innerjoin.post.service;
 
 
-import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.post.exception.ApplicationNotFoundException;
 import com.likelion.innerjoin.post.exception.QuestionNotFoundException;
 import com.likelion.innerjoin.post.exception.RecruitingNotFoundException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
 import com.likelion.innerjoin.post.model.dto.request.AnswerRequestDto;
+import com.likelion.innerjoin.post.model.dto.request.ApplicationPutRequestDto;
 import com.likelion.innerjoin.post.model.dto.request.ApplicationRequestDto;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
-import com.likelion.innerjoin.post.model.entity.Application;
-import com.likelion.innerjoin.post.model.entity.Recruiting;
-import com.likelion.innerjoin.post.model.entity.Response;
-import com.likelion.innerjoin.post.model.entity.ResultType;
+import com.likelion.innerjoin.post.model.entity.*;
 import com.likelion.innerjoin.post.model.mapper.ApplicationMapper;
-import com.likelion.innerjoin.post.repository.ApplicationRepository;
-import com.likelion.innerjoin.post.repository.QuestionRepository;
-import com.likelion.innerjoin.post.repository.RecruitingRepository;
-import com.likelion.innerjoin.post.repository.ResponseRepository;
+import com.likelion.innerjoin.post.repository.*;
 import com.likelion.innerjoin.user.model.entity.Applicant;
 import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
@@ -38,6 +32,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final ResponseRepository responseRepository;
     private final QuestionRepository questionRepository;
+    private final MeetingTimeRepository meetingTimeRepository;
 
     private final ApplicationMapper applicationMapper;
 
@@ -106,6 +101,38 @@ public class ApplicationService {
                 .collect(Collectors.toList());
     }
 
+    public ApplicationDto updateApplication(
+            ApplicationPutRequestDto applicationPutRequestDto,
+            Long applicationId,
+            HttpSession session){
+        Club club = checkClub(session);
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException("id: " + applicationId + " 지원서가 존재하지 않습니다."));
+
+        application.setFormResult(applicationPutRequestDto.getFormResult());
+        application.setMeetingResult(applicationPutRequestDto.getMeetingResult());
+
+        if(application.getMeetingTime() != null){
+            application.getMeetingTime().setMeetingStartTime(applicationPutRequestDto.getMeetingStartTime());
+            application.getMeetingTime().setMeetingEndTime(applicationPutRequestDto.getMeetingEndTime());
+        }else{
+            // 임시 meetingtime 데이터 만들기
+            MeetingTime meetingTime = new MeetingTime();
+            meetingTime.setMeetingStartTime(applicationPutRequestDto.getMeetingStartTime());
+            meetingTime.setMeetingEndTime(applicationPutRequestDto.getMeetingEndTime());
+            meetingTime.setAllowedNum(1);
+
+            meetingTime.setApplicationList(new ArrayList<>());
+            meetingTime.getApplicationList().add(application);
+
+            application.setMeetingTime(meetingTimeRepository.save(meetingTime));
+        }
+
+        applicationRepository.save(application);
+        return applicationMapper.toApplicationDto(application, false);
+    }
+
 
     Applicant checkApplicant (HttpSession session) {
         User user = sessionVerifier.verifySession(session);
@@ -113,5 +140,13 @@ public class ApplicationService {
             throw new UnauthorizedException("권한이 없습니다.");
         }
         return applicant;
+    }
+
+    Club checkClub (HttpSession session) {
+        User user = sessionVerifier.verifySession(session);
+        if(!(user instanceof Club club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        return club;
     }
 }
