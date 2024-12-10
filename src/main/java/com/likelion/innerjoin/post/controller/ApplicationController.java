@@ -11,10 +11,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.mapping.Any;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,7 +51,14 @@ public class ApplicationController {
     }
 
     @GetMapping("/application/list")
+    @Operation(summary = "로그인된 지원자의 지원서 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공적인 응답"),
+            @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    })
     public CommonResponse<List<ApplicationDto>> getApplicationList(HttpSession session) {
         return new CommonResponse<>(applicationService.getApplicationList(session));
     }
+
+
 }
