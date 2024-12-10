@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnswerRequestId {
+public class AnswerRequestDto {
     private Long questionId;
     private String answer;
 }

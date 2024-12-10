@@ -23,8 +23,7 @@ public class SessionVerifier {
             throw new UnauthorizedException("잘못된 접근입니다.");
         }
 
-        Integer userIdInteger = (Integer) session.getAttribute("userId"); // Integer로 가져오기
-        Long userId = userIdInteger != null ? userIdInteger.longValue() : null; // Long으로 변환
+        Long userId = (Long) session.getAttribute("userId");
 
         String role = (String) session.getAttribute("role");
 

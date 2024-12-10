@@ -15,5 +15,5 @@ import java.util.List;
 public class ApplicationRequestDto {
     private Long recruitingId;
     private Long applicantId;
-    private List<AnswerRequestId> answers;
+    private List<AnswerRequestDto> answers;
 }

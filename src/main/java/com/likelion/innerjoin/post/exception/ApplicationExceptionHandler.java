@@ -19,4 +19,18 @@ public class ApplicationExceptionHandler {
         log.warn("APPLICATION-001> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(ErrorCode.RECRUITING_NOT_FOUND);
     }
+
+    @ExceptionHandler(ApplicationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResponse<?> applicationNotFound(ApplicationNotFoundException e, HttpServletRequest request) {
+        log.warn("APPLICATION-002> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(ErrorCode.APPLICATION_NOT_FOUND);
+    }
+
+    @ExceptionHandler(QuestionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResponse<?> questionNotFound(QuestionNotFoundException e, HttpServletRequest request) {
+        log.warn("APPLICATION-003> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(ErrorCode.QUESTION_NOT_FOUND);
+    }
 }
