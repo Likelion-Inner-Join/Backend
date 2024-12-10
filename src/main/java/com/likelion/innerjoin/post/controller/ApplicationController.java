@@ -38,7 +38,7 @@ public class ApplicationController {
     }
 
     @GetMapping("/application/{application_id}")
-    @Operation(summary = "지원 상세조회 api (지원자용)")
+    @Operation(summary = "지원 상세조회 api (통합)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공적인 응답"),
             @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다."),

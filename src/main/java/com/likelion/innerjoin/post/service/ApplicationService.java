@@ -19,6 +19,7 @@ import com.likelion.innerjoin.post.repository.QuestionRepository;
 import com.likelion.innerjoin.post.repository.RecruitingRepository;
 import com.likelion.innerjoin.post.repository.ResponseRepository;
 import com.likelion.innerjoin.user.model.entity.Applicant;
+import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
@@ -72,13 +73,24 @@ public class ApplicationService {
 
 
     public ApplicationDto getApplicationDetail(Long applicationId, HttpSession session) {
-        Applicant applicant = checkApplicant(session);
+        User user = sessionVerifier.verifySession(session);
+        if(!(user instanceof Applicant) & !(user instanceof Club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
 
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("지원 내역이 존재하지 않습니다."));
 
-        if(!applicant.equals(application.getApplicant())) {
-            throw new UnauthorizedException("권한이 없습니다.");
+
+        if(user instanceof Applicant applicant) {
+            if(!applicant.equals(application.getApplicant())) {
+                throw new UnauthorizedException("권한이 없습니다.");
+            }
+        }else {
+            Club club = (Club) user;
+            if (!club.equals(application.getRecruiting().getPost().getClub())) {
+                throw new UnauthorizedException("권한이 없습니다.");
+            }
         }
 
         return applicationMapper.toApplicationDto(application, true);
