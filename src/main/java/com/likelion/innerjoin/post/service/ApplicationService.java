@@ -110,6 +110,10 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("id: " + applicationId + " 지원서가 존재하지 않습니다."));
 
+        if(!application.getRecruiting().getPost().getClub().equals(club) ) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+
         application.setFormResult(applicationPutRequestDto.getFormResult());
         application.setMeetingResult(applicationPutRequestDto.getMeetingResult());
 
