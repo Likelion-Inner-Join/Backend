@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.mapping.Any;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -44,7 +46,14 @@ public class ApplicationController {
             @ApiResponse(responseCode = "404", description = "지원 내역이 존재하지 않습니다."),
             @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     })
-    public CommonResponse<ApplicationDto> getApplicationDetail(@PathVariable("application_id") Long applicationId, HttpSession session) {
+    public CommonResponse<ApplicationDto> getApplicationDetail(
+            @PathVariable("application_id") Long applicationId,
+            HttpSession session) {
         return new CommonResponse<>(applicationService.getApplicationDetail(applicationId, session));
+    }
+
+    @GetMapping("/application/list")
+    public CommonResponse<List<ApplicationDto>> getApplicationList(HttpSession session) {
+        return new CommonResponse<>(applicationService.getApplicationList(session));
     }
 }

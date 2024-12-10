@@ -26,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +81,17 @@ public class ApplicationService {
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
-        return applicationMapper.toApplicationDto(application);
+        return applicationMapper.toApplicationDto(application, true);
+    }
+
+    public List<ApplicationDto> getApplicationList(HttpSession session) {
+        Applicant applicant = checkApplicant(session);
+
+        List<Application> applicationList = applicationRepository.findByApplicant(applicant);
+
+        return applicationList.stream()
+                .map(application -> applicationMapper.toApplicationDto(application, false))
+                .collect(Collectors.toList());
     }
 
 

@@ -15,9 +15,17 @@ import java.util.List;
 @AllArgsConstructor
 public class ApplicationDto {
     private Long applicationId;
+
     private Long formId;
+    private String formTitle;
+    private String formDescription;
+
     private Long clubId;
+    private String clubName;
+
     private Long postId;
+    private String postTitle;
+
     private Long applicantId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
