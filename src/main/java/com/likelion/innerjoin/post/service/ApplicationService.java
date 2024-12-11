@@ -136,10 +136,10 @@ public class ApplicationService {
         return applicationMapper.toApplicationDto(application, false);
     }
 
-    public ApplicationDto updateFormScore(ScoreRequestDto scoreRequestDto, HttpSession session) {
+    public ApplicationDto updateFormScore(FormScoreDto formScoreDto, HttpSession session) {
         Club club = checkClub(session);
 
-        Application application = applicationRepository.findById(scoreRequestDto.getApplicationId())
+        Application application = applicationRepository.findById(formScoreDto.getApplicationId())
                 .orElseThrow(() -> new ApplicationNotFoundException("지원서가 존재하지 않습니다."));
 
         if(!application.getRecruiting().getPost().getClub().equals(club)) {
@@ -147,7 +147,7 @@ public class ApplicationService {
         }
 
         // 점수 입력
-        Map<Long, Integer> questionScoreMap = scoreRequestDto.getScore().stream()
+        Map<Long, Integer> questionScoreMap = formScoreDto.getScore().stream()
                 .collect(Collectors.toMap(AnswerScoreDto::getQuestionId, AnswerScoreDto::getScore));
 
         application.getResponseList().forEach(response -> {
@@ -159,6 +159,21 @@ public class ApplicationService {
 
         applicationRepository.save(application);
         return applicationMapper.toApplicationDto(application, true);
+    }
+
+    public ApplicationDto updateMeetingScore(MeetingScoreDto meetingScoreDto, HttpSession session) {
+        Club club = checkClub(session);
+
+        Application application = applicationRepository.findById(meetingScoreDto.getApplicationId())
+                .orElseThrow(() -> new ApplicationNotFoundException("지원서가 존재하지 않습니다."));
+
+        if(!application.getRecruiting().getPost().getClub().equals(club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+
+        application.setMeetingScore(meetingScoreDto.getScore());
+        applicationRepository.save(application);
+        return applicationMapper.toApplicationDto(application, false);
     }
 
     Applicant checkApplicant (HttpSession session) {

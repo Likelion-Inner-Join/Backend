@@ -31,10 +31,14 @@ public class ApplicationMapper {
         applicationDto.setFormDescription(recruiting.getForm().getDescription());
 
         applicationDto.setApplicantId(application.getApplicant().getId());
+
+        // 면접
         if(application.getMeetingTime() != null) {
             applicationDto.setMeetingEndTime(application.getMeetingTime().getMeetingEndTime());
             applicationDto.setMeetingStartTime(application.getMeetingTime().getMeetingStartTime());
         }
+        applicationDto.setMeetingScore(application.getMeetingScore());
+
         if(withAnswer) {
             applicationDto.setAnswers(
                     application.getResponseList().stream()

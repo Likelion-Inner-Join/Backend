@@ -5,7 +5,8 @@ import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.post.model.dto.request.ApplicationPutRequestDto;
 import com.likelion.innerjoin.post.model.dto.request.ApplicationRequestDto;
-import com.likelion.innerjoin.post.model.dto.request.ScoreRequestDto;
+import com.likelion.innerjoin.post.model.dto.request.FormScoreDto;
+import com.likelion.innerjoin.post.model.dto.request.MeetingScoreDto;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
 import com.likelion.innerjoin.post.model.entity.Application;
 import com.likelion.innerjoin.post.service.ApplicationService;
@@ -74,10 +75,18 @@ public class ApplicationController {
 
     @PostMapping("/application/formscore")
     @Operation(summary = "지원서 점수 수정용 api (동아리용)")
-    public CommonResponse<ApplicationDto> updateformScore(
-            @RequestBody ScoreRequestDto scoreRequestDto,
+    public CommonResponse<ApplicationDto> updateFormScore(
+            @RequestBody FormScoreDto formScoreDto,
             HttpSession session) {
-        return new CommonResponse<>(applicationService.updateFormScore(scoreRequestDto, session));
+        return new CommonResponse<>(applicationService.updateFormScore(formScoreDto, session));
+    }
+
+    @PostMapping("/application/meetingscore")
+    @Operation(summary = "면접 점수 수정용 api (동아리용)")
+    public CommonResponse<ApplicationDto> updateMeetingScore(
+            @RequestBody MeetingScoreDto meetingScoreDto,
+            HttpSession session) {
+        return new CommonResponse<>(applicationService.updateMeetingScore(meetingScoreDto, session));
     }
 
 }

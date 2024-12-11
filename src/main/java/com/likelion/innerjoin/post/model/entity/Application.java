@@ -42,6 +42,9 @@ public class Application extends DataEntity {
     @Enumerated(EnumType.STRING)
     private ResultType meetingResult;
 
+    @Column(name = "meeting_score")
+    private Integer meetingScore;
+
     @OneToMany(mappedBy = "application", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Response> responseList;
 }

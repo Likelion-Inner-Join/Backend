@@ -34,5 +34,7 @@ public class ApplicationDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime meetingEndTime;
 
+    private Integer meetingScore;
+
     private List<AnswerResponseDto> answers;
 }

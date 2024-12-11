@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ScoreRequestDto {
+public class FormScoreDto {
     private Long applicationId;
     private List<AnswerScoreDto> score;
 }
