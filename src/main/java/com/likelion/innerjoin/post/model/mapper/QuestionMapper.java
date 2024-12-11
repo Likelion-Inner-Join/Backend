@@ -33,6 +33,7 @@ public class QuestionMapper {
         AnswerResponseDto answerResponseDto = new AnswerResponseDto();
         answerResponseDto.setQuestion(response.getQuestion().getContent());
         answerResponseDto.setAnswer(response.getContent());
+        answerResponseDto.setScore(response.getScore());
         answerResponseDto.setQuestionType(response.getQuestion().getQuestionType());
         answerResponseDto.setQuestionId(response.getQuestion().getId());
         return answerResponseDto;

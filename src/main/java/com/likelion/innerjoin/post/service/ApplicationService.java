@@ -5,9 +5,7 @@ import com.likelion.innerjoin.post.exception.ApplicationNotFoundException;
 import com.likelion.innerjoin.post.exception.QuestionNotFoundException;
 import com.likelion.innerjoin.post.exception.RecruitingNotFoundException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
-import com.likelion.innerjoin.post.model.dto.request.AnswerRequestDto;
-import com.likelion.innerjoin.post.model.dto.request.ApplicationPutRequestDto;
-import com.likelion.innerjoin.post.model.dto.request.ApplicationRequestDto;
+import com.likelion.innerjoin.post.model.dto.request.*;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
 import com.likelion.innerjoin.post.model.entity.*;
 import com.likelion.innerjoin.post.model.mapper.ApplicationMapper;
@@ -22,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -137,6 +136,30 @@ public class ApplicationService {
         return applicationMapper.toApplicationDto(application, false);
     }
 
+    public ApplicationDto updateFormScore(ScoreRequestDto scoreRequestDto, HttpSession session) {
+        Club club = checkClub(session);
+
+        Application application = applicationRepository.findById(scoreRequestDto.getApplicationId())
+                .orElseThrow(() -> new ApplicationNotFoundException("지원서가 존재하지 않습니다."));
+
+        if(!application.getRecruiting().getPost().getClub().equals(club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+
+        // 점수 입력
+        Map<Long, Integer> questionScoreMap = scoreRequestDto.getScore().stream()
+                .collect(Collectors.toMap(AnswerScoreDto::getQuestionId, AnswerScoreDto::getScore));
+
+        application.getResponseList().forEach(response -> {
+            Long questionId = response.getQuestion().getId();
+            if (questionScoreMap.containsKey(questionId)) {
+                response.setScore(questionScoreMap.get(questionId));
+            }
+        });
+
+        applicationRepository.save(application);
+        return applicationMapper.toApplicationDto(application, true);
+    }
 
     Applicant checkApplicant (HttpSession session) {
         User user = sessionVerifier.verifySession(session);

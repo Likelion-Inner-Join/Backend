@@ -15,5 +15,6 @@ public class AnswerResponseDto {
     private Long questionId;
     private String question;
     private String answer;
+    private int score;
     private QuestionType questionType;
 }
