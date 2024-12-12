@@ -9,6 +9,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecruitingRequestDTO {
+
     private Long formId;
+
     private String jobTitle;
+
+    private String recruitmentType;
+
 }

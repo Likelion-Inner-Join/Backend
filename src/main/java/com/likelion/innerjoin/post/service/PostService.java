@@ -1,7 +1,8 @@
 package com.likelion.innerjoin.post.service;
 
-import com.likelion.innerjoin.post.exception.PostNotFoundException;
+import com.likelion.innerjoin.post.exception.*;
 import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
+import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.RecruitingRequestDTO;
 import com.likelion.innerjoin.post.model.dto.response.PostCreateResponseDTO;
 import com.likelion.innerjoin.post.model.entity.*;
@@ -10,7 +11,10 @@ import com.likelion.innerjoin.post.repository.PostImageRepository;
 import com.likelion.innerjoin.post.repository.PostRepository;
 import com.likelion.innerjoin.post.repository.RecruitingRepository;
 import com.likelion.innerjoin.user.model.entity.Club;
+import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.repository.ClubRepository;
+import com.likelion.innerjoin.user.util.SessionVerifier;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,12 +34,9 @@ public class PostService {
     private final ClubRepository clubRepository;
     private final FormRepository formRepository;
     private final RecruitingRepository recruitingRepository;
+    private final SessionVerifier sessionVerifier;
 
-    /**
-     * 모든 홍보글 조회
-     *
-     * @return List of PostResponseDTO
-     */
+    // 모든 홍보글 조회
     public List<PostResponseDTO> getAllPosts() {
         List<Post> posts = postRepository.findAll();
 
@@ -56,16 +57,11 @@ public class PostService {
         return toPostResponseDTO(post);
     }
 
-    /**
-     * Post 엔티티를 PostResponseDTO로 변환
-     *
-     * @param post Post entity
-     * @return PostResponseDTO
-     */
+    // Post 엔티티를 PostResponseDTO로 변환
     private PostResponseDTO toPostResponseDTO(Post post) {
         // PostImage 리스트를 PostImageDTO로 변환
         List<PostResponseDTO.PostImageDTO> imageDTOs = post.getImageList().stream()
-                .map(image -> new PostResponseDTO.PostImageDTO(image.getId(), image.getUrl()))
+                .map(image -> new PostResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
                 .collect(Collectors.toList());
 
         return PostResponseDTO.builder()
@@ -82,60 +78,72 @@ public class PostService {
                 .build();
     }
 
-    // 홍보글 작성 및 Recruiting 생성
+
+    // 홍보글 작성
     @Transactional
-    public PostCreateResponseDTO createPostWithRecruiting(
-            Long clubId, String title, String startTime, String endTime, String content, String status,
-            Integer recruitmentCount, List<MultipartFile> images, List<RecruitingRequestDTO> recruiting) throws IOException {
+    public PostCreateResponseDTO createPost(PostCreateRequestDTO postCreateRequestDTO, List<MultipartFile> images, HttpSession session) {
 
-        // Club 조회
-        Club club = clubRepository.findById(clubId).orElseThrow(() -> new RuntimeException("Club not found"));
+        User user = sessionVerifier.verifySession(session);
+        if(!(user instanceof Club)){
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
 
-        // status 값을 Enum으로 변환
-        RecruitmentStatus recruitmentStatus = RecruitmentStatus.valueOf(status.toUpperCase());
+        // Club 객체 조회
+        Club club = clubRepository.findById(postCreateRequestDTO.getClubId())
+                .orElseThrow(() -> new ClubNotFoundException("Club not found with id: " + postCreateRequestDTO.getClubId()));
 
-        // Post 엔티티 생성
+        // Post 엔티티 생성 및 저장
         Post post = Post.builder()
                 .club(club)
-                .title(title)
-                .startTime(LocalDateTime.parse(startTime))
-                .endTime(LocalDateTime.parse(endTime))
-                .content(content)
-                .recruitmentStatus(recruitmentStatus)
-                .recruitmentCount(recruitmentCount)
+                .title(postCreateRequestDTO.getTitle())
+                .startTime(LocalDateTime.parse(postCreateRequestDTO.getStartTime()))
+                .endTime(LocalDateTime.parse(postCreateRequestDTO.getEndTime()))
+                .content(postCreateRequestDTO.getContent())
+                .recruitmentStatus(RecruitmentStatus.valueOf(postCreateRequestDTO.getRecruitmentStatus()))
+                .recruitmentCount(postCreateRequestDTO.getRecruitmentCount())
                 .build();
 
-        // Post 저장
-        Post savedPost = postRepository.save(post);
+        postRepository.save(post);
 
-        // Recruiting 저장
-        if (recruiting != null && !recruiting.isEmpty()) {
-            for (RecruitingRequestDTO recruitingDTO : recruiting) {
-                // Form 조회
-                Form form = formRepository.findById(recruitingDTO.getFormId())
-                        .orElseThrow(() -> new RuntimeException("Form not found"));
+        // Recruiting 엔티티 생성 및 저장
+        if (postCreateRequestDTO.getRecruiting() != null) {
+            for (RecruitingRequestDTO recruitingRequest : postCreateRequestDTO.getRecruiting()) {
+                Form form = formRepository.findById(recruitingRequest.getFormId())
+                        .orElseThrow(() -> new FormNotFoundException("Form not found with id: " + recruitingRequest.getFormId()));
 
-                Recruiting recruitingEntity = Recruiting.builder()
-                        .post(savedPost)
+                // Form의 club_id가 조회한 club_id와 일치하는지 확인
+                if (!form.getClub().getId().equals(club.getId())) {
+                    throw new UnauthorizedException("지원폼의 club_id가 현재 club_id와 일치하지 않습니다.");
+                }
+
+                Recruiting recruiting = Recruiting.builder()
                         .form(form)
-                        .jobTitle(recruitingDTO.getJobTitle())
+                        .post(post)
+                        .jobTitle(recruitingRequest.getJobTitle())
+                        .recruitmentType(RecruitmentType.valueOf(recruitingRequest.getRecruitmentType()))
                         .build();
 
-                recruitingRepository.save(recruitingEntity);
+                recruitingRepository.save(recruiting);
             }
         }
 
-        // 이미지 저장 (이미지 처리)
+        // 이미지 처리 및 저장
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
-                PostImage postImage = new PostImage();
-                postImage.setPost(savedPost);
-                postImage.setUrl(saveImage(image));  // 이미지 저장 후 URL 반환
-                postImageRepository.save(postImage);
+                try {
+                    String imageUrl = saveImage(image);
+                    PostImage postImage = PostImage.builder()
+                            .post(post)
+                            .imageUrl(imageUrl)
+                            .build();
+                    postImageRepository.save(postImage);
+                } catch (IOException e) {
+                    throw new ImageProcessingException("Error processing image: " + e.getMessage(), e);
+                }
             }
         }
 
-        return new PostCreateResponseDTO(savedPost.getId());
+        return new PostCreateResponseDTO(post.getId());
     }
 
     // 이미지 저장 메서드

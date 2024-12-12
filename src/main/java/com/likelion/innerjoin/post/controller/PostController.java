@@ -7,9 +7,13 @@ import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.RecruitingRequestDTO;
 import com.likelion.innerjoin.post.model.dto.response.PostCreateResponseDTO;
+import com.likelion.innerjoin.post.model.entity.Post;
 import com.likelion.innerjoin.post.service.PostService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,35 +42,15 @@ public class PostController {
         return new CommonResponse<>(postResponseDTO);
     }
 
-    //멀티파트 요청으로 홍보글 생성
-
-    @PostMapping
+    // 홍보글 작성
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse<PostCreateResponseDTO> createPost(
-            @RequestParam("clubId") Long clubId,
-            @RequestParam("title") String title,
-            @RequestParam("startTime") String startTime,
-            @RequestParam("endTime") String endTime,
-            @RequestParam("body") String body,
-            @RequestParam("status") String status,
-            @RequestParam("recruitmentCount") Integer recruitmentCount,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            @RequestParam(value = "recruiting") String recruiting) {  // JSON 형태로 String으로 받기
+            @RequestPart("post") @Valid PostCreateRequestDTO postCreateRequestDTO, // 홍보글 생성 DTO
+            @RequestPart(value = "images", required = false) List<MultipartFile> images, // 이미지들 (옵션)
+            HttpSession session) {
 
-        try {
-            // recruiting 문자열을 파싱해 JSON 객체로 변환
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            // recruiting의 JSON 문자열을 List<RecruitingRequestDTO>로 변환
-            List<RecruitingRequestDTO> recruitingList = objectMapper.readValue(
-                    recruiting, objectMapper.getTypeFactory().constructCollectionType(List.class, RecruitingRequestDTO.class));
-
-            PostCreateResponseDTO result = postService.createPostWithRecruiting(
-                    clubId, title, startTime, endTime, body, status, recruitmentCount, images, recruitingList);
-
-            return new CommonResponse<>(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new CommonResponse<>(ErrorCode.VALID_ERROR);
-        }
+            PostCreateResponseDTO responseDTO = postService.createPost(postCreateRequestDTO, images, session);
+            return new CommonResponse<>(responseDTO);
     }
+
 }
