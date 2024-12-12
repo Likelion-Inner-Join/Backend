@@ -38,10 +38,11 @@ public class Post extends DataEntity {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
 
-    private String body;
+    private String content;
 
     @Enumerated(EnumType.STRING)
-    private RecruitmentStatus status;
+    @Column(name = "recruitment_status")
+    private RecruitmentStatus recruitmentStatus;
 
     @Column(name = "recruitment_count")
     private Integer recruitmentCount;

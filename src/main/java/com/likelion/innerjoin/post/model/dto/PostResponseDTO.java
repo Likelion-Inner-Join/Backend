@@ -16,7 +16,7 @@ public class PostResponseDTO {
     private Long postId;
     private Long clubId;
     private String title;
-    private String body;
+    private String content;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
@@ -27,7 +27,7 @@ public class PostResponseDTO {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endTime;
 
-    private String status;
+    private String recruitmentStatus;
     private Integer recruitmentCount;
 
     private List<PostImageDTO> image;

@@ -2,7 +2,6 @@ package com.likelion.innerjoin.post.service;
 
 import com.likelion.innerjoin.post.exception.PostNotFoundException;
 import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
-import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.RecruitingRequestDTO;
 import com.likelion.innerjoin.post.model.dto.response.PostCreateResponseDTO;
 import com.likelion.innerjoin.post.model.entity.*;
@@ -13,7 +12,7 @@ import com.likelion.innerjoin.post.repository.RecruitingRepository;
 import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.repository.ClubRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
@@ -30,20 +30,6 @@ public class PostService {
     private final ClubRepository clubRepository;
     private final FormRepository formRepository;
     private final RecruitingRepository recruitingRepository;
-
-    // 생성자 주입
-    @Autowired
-    public PostService(PostRepository postRepository,
-                       PostImageRepository postImageRepository,
-                       ClubRepository clubRepository,
-                       FormRepository formRepository,
-                       RecruitingRepository recruitingRepository) {
-        this.postRepository = postRepository;
-        this.postImageRepository = postImageRepository;
-        this.clubRepository = clubRepository;
-        this.formRepository = formRepository;
-        this.recruitingRepository = recruitingRepository;
-    }
 
     /**
      * 모든 홍보글 조회
@@ -86,11 +72,11 @@ public class PostService {
                 .postId(post.getId())
                 .clubId(post.getClub().getId())
                 .title(post.getTitle())
-                .body(post.getBody())
+                .content(post.getContent())
                 .createdAt(post.getCreatedAt())
                 .startTime(post.getStartTime())
                 .endTime(post.getEndTime())
-                .status(post.getStatus().toString())
+                .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentCount(post.getRecruitmentCount())
                 .image(imageDTOs)
                 .build();
@@ -99,7 +85,7 @@ public class PostService {
     // 홍보글 작성 및 Recruiting 생성
     @Transactional
     public PostCreateResponseDTO createPostWithRecruiting(
-            Long clubId, String title, String startTime, String endTime, String body, String status,
+            Long clubId, String title, String startTime, String endTime, String content, String status,
             Integer recruitmentCount, List<MultipartFile> images, List<RecruitingRequestDTO> recruiting) throws IOException {
 
         // Club 조회
@@ -114,8 +100,8 @@ public class PostService {
                 .title(title)
                 .startTime(LocalDateTime.parse(startTime))
                 .endTime(LocalDateTime.parse(endTime))
-                .body(body)
-                .status(recruitmentStatus)
+                .content(content)
+                .recruitmentStatus(recruitmentStatus)
                 .recruitmentCount(recruitmentCount)
                 .build();
 
