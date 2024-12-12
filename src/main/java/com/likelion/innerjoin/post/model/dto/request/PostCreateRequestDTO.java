@@ -11,8 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class PostCreateRequestDTO {
 
-    private Long clubId;
-
     private String title;
 
     private String startTime;

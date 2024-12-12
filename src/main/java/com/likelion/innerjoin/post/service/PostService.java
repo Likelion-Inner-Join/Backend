@@ -87,10 +87,6 @@ public class PostService {
         Club club = clubRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
 
-        if (!club.getId().equals(postCreateRequestDTO.getClubId())) {
-            throw new UnauthorizedException("해당 Club의 권한이 아닙니다.");
-        }
-
         // Post 엔티티 생성 및 저장
         Post post = Post.builder()
                 .club(club)
