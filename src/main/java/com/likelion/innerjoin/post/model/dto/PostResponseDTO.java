@@ -28,7 +28,6 @@ public class PostResponseDTO {
     private LocalDateTime endTime;
 
     private String status;
-    private String recruitmentType;
     private Integer recruitmentCount;
 
     private List<PostImageDTO> image;
