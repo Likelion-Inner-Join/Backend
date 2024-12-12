@@ -6,4 +6,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FormNotFoundException extends RuntimeException {
-    }
+    private String message;
+}
