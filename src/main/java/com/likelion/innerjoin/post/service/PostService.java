@@ -83,14 +83,18 @@ public class PostService {
     @Transactional
     public PostCreateResponseDTO createPost(PostCreateRequestDTO postCreateRequestDTO, List<MultipartFile> images, HttpSession session) {
 
-        User user = sessionVerifier.verifySession(session);
-        if(!(user instanceof Club)){
-            throw new UnauthorizedException("권한이 없습니다.");
-        }
+//        User user = sessionVerifier.verifySession(session);
+//        if(!(user instanceof Club)){
+//            throw new UnauthorizedException("권한이 없습니다.");
+//        }
 
-        // Club 객체 조회
-        Club club = clubRepository.findById(postCreateRequestDTO.getClubId())
-                .orElseThrow(() -> new ClubNotFoundException("Club not found with id: " + postCreateRequestDTO.getClubId()));
+        Long userId = (Long) session.getAttribute("userId"); // 세션에서 Long으로 가져오기
+        Club club = clubRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
+
+        if (!club.getId().equals(postCreateRequestDTO.getClubId())) {
+            throw new UnauthorizedException("해당 Club의 권한이 아닙니다.");
+        }
 
         // Post 엔티티 생성 및 저장
         Post post = Post.builder()
@@ -113,7 +117,7 @@ public class PostService {
 
                 // Form의 club_id가 조회한 club_id와 일치하는지 확인
                 if (!form.getClub().getId().equals(club.getId())) {
-                    throw new UnauthorizedException("지원폼의 club_id가 현재 club_id와 일치하지 않습니다.");
+                    throw new UnauthorizedException("지원폼의 club_id가 현재 유저의 club_id와 일치하지 않습니다.");
                 }
 
                 Recruiting recruiting = Recruiting.builder()
