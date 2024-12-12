@@ -83,11 +83,6 @@ public class PostService {
     @Transactional
     public PostCreateResponseDTO createPost(PostCreateRequestDTO postCreateRequestDTO, List<MultipartFile> images, HttpSession session) {
 
-//        User user = sessionVerifier.verifySession(session);
-//        if(!(user instanceof Club)){
-//            throw new UnauthorizedException("권한이 없습니다.");
-//        }
-
         Long userId = (Long) session.getAttribute("userId"); // 세션에서 Long으로 가져오기
         Club club = clubRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
