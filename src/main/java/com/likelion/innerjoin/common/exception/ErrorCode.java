@@ -28,7 +28,8 @@ public enum ErrorCode {
     APPLICATION_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "지원 내역이 존재하지 않습니다."),
     QUESTION_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "질문이 존재하지 않습니다."),
     WRONG_SESSION_ERROR(false, HttpStatus.UNAUTHORIZED.value(), "세션값이 잘못되었습니다."),
-    JSON_CONVERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "JSON 변환중 오류가 발생하였습니다.")
+    JSON_CONVERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "JSON 변환중 오류가 발생하였습니다."),
+    FORM_NOT_FOUND_ERROR(false, HttpStatus.NOT_FOUND.value(), "지원폼이 존재하지 않습니다.")
     ;
 
 
