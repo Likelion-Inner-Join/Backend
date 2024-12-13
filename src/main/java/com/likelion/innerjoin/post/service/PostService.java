@@ -1,5 +1,6 @@
 package com.likelion.innerjoin.post.service;
 
+import com.likelion.innerjoin.common.service.BlobService;
 import com.likelion.innerjoin.post.exception.*;
 import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
@@ -34,7 +35,6 @@ public class PostService {
     private final ClubRepository clubRepository;
     private final FormRepository formRepository;
     private final RecruitingRepository recruitingRepository;
-    private final SessionVerifier sessionVerifier;
 
     // 모든 홍보글 조회
     public List<PostResponseDTO> getAllPosts() {
@@ -122,29 +122,24 @@ public class PostService {
             }
         }
 
-        // 이미지 처리 및 저장
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile image : images) {
-                try {
-                    String imageUrl = saveImage(image);
-                    PostImage postImage = PostImage.builder()
-                            .post(post)
-                            .imageUrl(imageUrl)
-                            .build();
-                    postImageRepository.save(postImage);
-                } catch (IOException e) {
-                    throw new ImageProcessingException("Error processing image: " + e.getMessage(), e);
-                }
-            }
-        }
+//        // 이미지 처리 및 저장
+//        if (images != null && !images.isEmpty()) {
+//            for (MultipartFile image : images) {
+//                try {
+//                    String imageUrl = BlobStorageService.uploadImage(image);
+//                    PostImage postImage = PostImage.builder()
+//                            .post(post)
+//                            .imageUrl(imageUrl)
+//                            .build();
+//                    postImageRepository.save(postImage);
+//                } catch (IOException e) {
+//                    throw new ImageProcessingException("Error processing image: " + e.getMessage(), e);
+//                }
+//            }
+//        }
 
         return new PostCreateResponseDTO(post.getId());
     }
 
-    // 이미지 저장 메서드
-    private String saveImage(MultipartFile image) throws IOException {
-        // 실제 이미지 저장 로직은 Storage 사용하도록 수정 예정
-        String imageUrl = "http://example.com/images/" + image.getOriginalFilename();
-        return imageUrl;
-    }
+
 }
