@@ -35,6 +35,7 @@ public class PostService {
     private final ClubRepository clubRepository;
     private final FormRepository formRepository;
     private final RecruitingRepository recruitingRepository;
+    private final BlobService blobService;
 
     // 모든 홍보글 조회
     public List<PostResponseDTO> getAllPosts() {
@@ -122,21 +123,21 @@ public class PostService {
             }
         }
 
-//        // 이미지 처리 및 저장
-//        if (images != null && !images.isEmpty()) {
-//            for (MultipartFile image : images) {
-//                try {
-//                    String imageUrl = BlobStorageService.uploadImage(image);
-//                    PostImage postImage = PostImage.builder()
-//                            .post(post)
-//                            .imageUrl(imageUrl)
-//                            .build();
-//                    postImageRepository.save(postImage);
-//                } catch (IOException e) {
-//                    throw new ImageProcessingException("Error processing image: " + e.getMessage(), e);
-//                }
-//            }
-//        }
+        // 이미지 처리 및 저장
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                try {
+                    String imageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
+                    PostImage postImage = PostImage.builder()
+                            .post(post)
+                            .imageUrl(imageUrl)
+                            .build();
+                    postImageRepository.save(postImage);
+                } catch (IOException e) {
+                    throw new ImageProcessingException("Error processing image: " + e.getMessage(), e);
+                }
+            }
+        }
 
         return new PostCreateResponseDTO(post.getId());
     }

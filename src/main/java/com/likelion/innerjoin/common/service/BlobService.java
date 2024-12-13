@@ -27,6 +27,6 @@ public class BlobService {
     public String storeFile(String filename, InputStream content, long length) {
         BlobClient client = containerClient().getBlobClient(filename);
         client.upload(content, length);
-        return "파일이 성공적으로 업로드되었습니다!";
+        return client.getBlobUrl();  // URL 반환
     }
 }
