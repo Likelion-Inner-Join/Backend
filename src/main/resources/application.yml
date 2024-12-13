@@ -18,8 +18,8 @@ spring:
                 format_sql: true
 server:
     servlet:
-      session:
-          timeout: 30m
+        session:
+            timeout: 30m
 
 springdoc:
     api-docs:
@@ -27,3 +27,7 @@ springdoc:
     swagger-ui:
         enabled: true
 
+azure:
+    blob:
+        connection-string: ${CONNECTION_STRING}
+        container-name: innerjoin-img
