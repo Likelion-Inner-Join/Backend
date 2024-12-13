@@ -1,4 +1,4 @@
-package com.likelion.innerjoin.user.dto;
+package com.likelion.innerjoin.user.model.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

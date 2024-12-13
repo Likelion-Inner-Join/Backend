@@ -1,40 +1,28 @@
 package com.likelion.innerjoin.user.controller;
 
 import com.likelion.innerjoin.common.response.CommonResponse;
-import com.likelion.innerjoin.common.exception.ErrorCode;
-import com.likelion.innerjoin.user.dto.EmailRequestDto;
-import com.likelion.innerjoin.user.dto.EmailResponseDto;
+import com.likelion.innerjoin.user.model.dto.request.EmailRequestDto;
+import com.likelion.innerjoin.user.model.dto.response.EmailResponseDto;
 import com.likelion.innerjoin.user.service.ClubService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/club/email")
+@RequestMapping("/club")
 @RequiredArgsConstructor
 public class ClubController {
 
     private final ClubService clubService;
-
-    /**
-     * 이메일 중복 확인 API
-     *
-     * @param emailRequestDto 이메일 요청 DTO
-     * @return CommonResponse 형식의 결과
-     */
-    @PostMapping
-    public CommonResponse<EmailResponseDto> checkEmailExists(@RequestBody EmailRequestDto emailRequestDto) {
-        try {
-            // 이메일 존재 여부 확인
-            boolean exists = clubService.isEmailExists(emailRequestDto.getEmail());
-
-            // 응답 DTO 생성
-            EmailResponseDto responseDto = new EmailResponseDto(exists);
-
-            // 성공 응답 반환
-            return new CommonResponse<>(responseDto);
-        } catch (Exception e) {
-            // 예외 발생 시 오류 응답 반환
-            return new CommonResponse<>(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
+    @Operation(summary = "동아리 이메일 중복 확인 API", description = "동아리 이메일의 중복 여부를 확인.")
+    @PostMapping("/email")
+    public ResponseEntity<CommonResponse<EmailResponseDto>> checkEmailExists(@RequestBody EmailRequestDto requestDto) {
+        // 서비스 계층 호출
+        EmailResponseDto responseDto = clubService.checkEmailExists(requestDto);
+        return ResponseEntity.ok(new CommonResponse<>(responseDto));
     }
 }
