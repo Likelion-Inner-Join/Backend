@@ -1,10 +1,8 @@
 package com.likelion.innerjoin.post.service;
 
 
-import com.likelion.innerjoin.post.exception.ApplicationNotFoundException;
-import com.likelion.innerjoin.post.exception.QuestionNotFoundException;
-import com.likelion.innerjoin.post.exception.RecruitingNotFoundException;
-import com.likelion.innerjoin.post.exception.UnauthorizedException;
+import com.likelion.innerjoin.common.exception.ErrorCode;
+import com.likelion.innerjoin.post.exception.*;
 import com.likelion.innerjoin.post.model.dto.request.*;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
 import com.likelion.innerjoin.post.model.entity.*;
@@ -16,6 +14,8 @@ import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,6 +34,9 @@ public class ApplicationService {
     private final MeetingTimeRepository meetingTimeRepository;
 
     private final ApplicationMapper applicationMapper;
+
+    private final JavaMailSender mailSender;
+    private final PostRepository postRepository;
 
 
     public Application postApplication (ApplicationRequestDto applicationRequestDto, HttpSession session) {
@@ -174,6 +177,33 @@ public class ApplicationService {
         application.setMeetingScore(meetingScoreDto.getScore());
         applicationRepository.save(application);
         return applicationMapper.toApplicationDto(application, false);
+    }
+
+    public ErrorCode sendEmail(EmailDto emailDto, HttpSession session) {
+
+        Club club = checkClub(session);
+        Post post = postRepository.findById(emailDto.getPostId())
+                .orElseThrow(() -> new PostNotFoundException("권한이 없습니다."));
+        if(!post.getClub().equals(club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+
+        List<Application> application = applicationRepository.findAllById(emailDto.getApplicationIdList());
+
+        // 해당 post에 대한 지원자 이메일인지 검증은 일단 스킵
+        List<String> emailList = new ArrayList<>();
+        for(Application app : application){
+            emailList.add(app.getApplicant().getEmail());
+        }
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(emailList.toArray(new String[0])); // 여러 명의 수신자
+        message.setSubject(emailDto.getTitle());
+        message.setText(emailDto.getContent());
+        message.setFrom("innerjoin75@gmail.com");
+
+        mailSender.send(message);
+        return ErrorCode.SUCCESS;
     }
 
     Applicant checkApplicant (HttpSession session) {

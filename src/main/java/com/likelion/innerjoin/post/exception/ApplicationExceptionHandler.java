@@ -33,4 +33,11 @@ public class ApplicationExceptionHandler {
         log.warn("APPLICATION-003> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(ErrorCode.QUESTION_NOT_FOUND);
     }
+
+    @ExceptionHandler(PostNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResponse<?> postNotFound(QuestionNotFoundException e, HttpServletRequest request) {
+        log.warn("APPLICATION-004> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(ErrorCode.POST_NOT_FOUND);
+    }
 }

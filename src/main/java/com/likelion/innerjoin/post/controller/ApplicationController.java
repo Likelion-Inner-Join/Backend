@@ -3,10 +3,7 @@ package com.likelion.innerjoin.post.controller;
 
 import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.common.response.CommonResponse;
-import com.likelion.innerjoin.post.model.dto.request.ApplicationPutRequestDto;
-import com.likelion.innerjoin.post.model.dto.request.ApplicationRequestDto;
-import com.likelion.innerjoin.post.model.dto.request.FormScoreDto;
-import com.likelion.innerjoin.post.model.dto.request.MeetingScoreDto;
+import com.likelion.innerjoin.post.model.dto.request.*;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
 import com.likelion.innerjoin.post.model.entity.Application;
 import com.likelion.innerjoin.post.service.ApplicationService;
@@ -14,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +52,7 @@ public class ApplicationController {
     }
 
     @GetMapping("/application/list")
-    @Operation(summary = "로그인된 지원자의 지원서 목록 조회")
+    @Operation(summary = "로그인된 지원자의 지원서 목록 조회 (지원자용)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공적인 응답"),
             @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
@@ -87,6 +85,12 @@ public class ApplicationController {
             @RequestBody MeetingScoreDto meetingScoreDto,
             HttpSession session) {
         return new CommonResponse<>(applicationService.updateMeetingScore(meetingScoreDto, session));
+    }
+
+    @PostMapping("/application/email")
+    @Operation(summary = "이메일 전송 api (동아리용)")
+    public CommonResponse<ApplicationDto> sendEmail(@RequestBody EmailDto emailDto, HttpSession session) {
+        return new CommonResponse<>(applicationService.sendEmail(emailDto, session));
     }
 
 }
