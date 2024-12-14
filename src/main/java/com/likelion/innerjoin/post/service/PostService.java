@@ -2,6 +2,7 @@ package com.likelion.innerjoin.post.service;
 
 import com.likelion.innerjoin.common.service.BlobService;
 import com.likelion.innerjoin.post.exception.*;
+import com.likelion.innerjoin.post.model.dto.PostModifyRequestDTO;
 import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.RecruitingRequestDTO;
@@ -142,5 +143,65 @@ public class PostService {
         return new PostCreateResponseDTO(post.getId());
     }
 
+    // 홍보글 수정
+    @Transactional
+    public PostCreateResponseDTO updatePost(Long postId, PostModifyRequestDTO postModifyRequestDTO, List<MultipartFile> images, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        Club club = clubRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
+
+        // 기존 홍보글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
+
+        // 수정된 내용으로 Post 엔티티 업데이트
+        post.setTitle(postModifyRequestDTO.getTitle());
+        post.setStartTime(LocalDateTime.parse(postModifyRequestDTO.getStartTime()));
+        post.setEndTime(LocalDateTime.parse(postModifyRequestDTO.getEndTime()));
+        post.setContent(postModifyRequestDTO.getContent());
+        post.setRecruitmentStatus(RecruitmentStatus.valueOf(postModifyRequestDTO.getRecruitmentStatus()));
+        post.setRecruitmentCount(postModifyRequestDTO.getRecruitmentCount());
+
+        postRepository.save(post);
+
+        // 이미지 처리 및 저장
+        if (images != null && !images.isEmpty()) {
+            postImageRepository.deleteByPost(post);  // 기존 이미지 삭제
+            for (MultipartFile image : images) {
+                try {
+                    String imageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
+                    PostImage postImage = PostImage.builder()
+                            .post(post)
+                            .imageUrl(imageUrl)
+                            .build();
+                    postImageRepository.save(postImage);
+                } catch (IOException e) {
+                    throw new ImageProcessingException("Error processing image: " + e.getMessage(), e);
+                }
+            }
+        }
+
+        // Post 수정이 완료된 후 응답 DTO 반환
+        return new PostCreateResponseDTO(post.getId());
+    }
+
+    // 홍보글 삭제
+    @Transactional
+    public void deletePost(Long postId, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        Club club = clubRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
+
+        // Club과 게시글의 Club이 일치하는지 확인
+        if (!post.getClub().getId().equals(club.getId())) {
+            throw new UnauthorizedException("삭제할 권한이 없습니다.");
+        }
+
+        postRepository.delete(post);
+
+    }
 
 }
