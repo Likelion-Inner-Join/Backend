@@ -47,3 +47,7 @@ azure:
     blob:
         connection-string: ${CONNECTION_STRING}
         container-name: innerjoin-img
+
+univcert:
+    api-key: ${UNIV_CERT_API_KEY}
+    univ-check: true # true: 재학 여부 확인, false: 메일 소유자 인증

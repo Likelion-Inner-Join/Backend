@@ -20,8 +20,12 @@ public enum ErrorCode {
     //valid
     VALID_ERROR(false, HttpStatus.BAD_REQUEST.value(), "형식이 잘못되었습니다."),
     APPLICANT_NOT_FOUNT(false, HttpStatus.UNAUTHORIZED.value(), "이메일 또는 비밀번호가 잘못되었습니다"),
+    EMAIL_FORMAT_INVALID(false, HttpStatus.BAD_REQUEST.value(), "이메일 형식이 올바르지 않습니다."),
+    INVALID_UNIV_NAME(false, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 학교 이름입니다."),
+    MISMATCHED_EMAIL_DOMAIN(false, HttpStatus.BAD_REQUEST.value(), "작성한 학교의 이메일 도메인 주소가 아닙니다."),
 
     //error
+    UNIV_CERT_API_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "학교 인증 API 호출 중 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR(false,HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부에서 문제가 발생했습니다."),
     POST_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "Post not found."),
     RECRUITING_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "모집항목이 존재하지 않습니다."),
