@@ -10,22 +10,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class UnivCertExceptionHandler {
 
-    @ExceptionHandler(UnivCertException.class)
-    public ResponseEntity<CommonResponse<Object>> handleUnivCertException(UnivCertException ex) {
-        CommonResponse<Object> response = new CommonResponse<>(ErrorCode.UNIV_CERT_API_ERROR);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(EmailValidationException.class)
+    public ResponseEntity<CommonResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(new CommonResponse<>(ErrorCode.EMAIL_FORMAT_INVALID, ex.getMessage()));
     }
 
     @ExceptionHandler(UnivNameException.class)
     public ResponseEntity<CommonResponse<Object>> handleUnivNameException(UnivNameException ex) {
-        CommonResponse<Object> response = new CommonResponse<>(ErrorCode.INVALID_UNIV_NAME);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(new CommonResponse<>(ErrorCode.INVALID_UNIV_NAME, ex.getMessage()));
     }
 
-    @ExceptionHandler(UnivEmailDomainException.class)
-    public ResponseEntity<CommonResponse<Object>> handleUnivEmailDomainException(UnivEmailDomainException ex) {
-        CommonResponse<Object> response = new CommonResponse<>(ErrorCode.MISMATCHED_EMAIL_DOMAIN);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(UnivCertException.class)
+    public ResponseEntity<CommonResponse<Object>> handleUnivCertException(UnivCertException ex) {
+        return ResponseEntity.status(500).body(new CommonResponse<>(ErrorCode.UNIV_CERT_API_ERROR, ex.getMessage()));
     }
-
 }
