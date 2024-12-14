@@ -1,5 +1,6 @@
 package com.likelion.innerjoin.post.exception;
 
+import com.likelion.innerjoin.common.exception.ErrorCode;
 import lombok.Getter;
 
 @Getter
