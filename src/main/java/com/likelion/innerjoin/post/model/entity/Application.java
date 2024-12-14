@@ -38,6 +38,9 @@ public class Application extends DataEntity {
     @Enumerated(EnumType.STRING)
     private ResultType formResult;
 
+    @Column(name = "form_score")
+    private Integer formScore;
+
     @Column(name = "meeting_result")
     @Enumerated(EnumType.STRING)
     private ResultType meetingResult;

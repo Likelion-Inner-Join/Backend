@@ -13,6 +13,7 @@ import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -38,7 +39,7 @@ public class ApplicationService {
     private final JavaMailSender mailSender;
     private final PostRepository postRepository;
 
-
+    @Transactional
     public Application postApplication (ApplicationRequestDto applicationRequestDto, HttpSession session) {
         Applicant applicant = checkApplicant(session);
         Recruiting recruiting = recruitingRepository.findById(applicationRequestDto.getRecruitingId())
@@ -103,6 +104,7 @@ public class ApplicationService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public ApplicationDto updateApplication(
             ApplicationPutRequestDto applicationPutRequestDto,
             Long applicationId,
@@ -139,6 +141,7 @@ public class ApplicationService {
         return applicationMapper.toApplicationDto(application, false);
     }
 
+    @Transactional
     public ApplicationDto updateFormScore(FormScoreDto formScoreDto, HttpSession session) {
         Club club = checkClub(session);
 
@@ -153,17 +156,21 @@ public class ApplicationService {
         Map<Long, Integer> questionScoreMap = formScoreDto.getScore().stream()
                 .collect(Collectors.toMap(AnswerScoreDto::getQuestionId, AnswerScoreDto::getScore));
 
-        application.getResponseList().forEach(response -> {
+        Integer totalScore = 0;
+        for(Response response : application.getResponseList()) {
             Long questionId = response.getQuestion().getId();
             if (questionScoreMap.containsKey(questionId)) {
                 response.setScore(questionScoreMap.get(questionId));
+                totalScore += questionScoreMap.get(questionId);
             }
-        });
+        }
+        application.setFormScore(totalScore);
 
         applicationRepository.save(application);
         return applicationMapper.toApplicationDto(application, true);
     }
 
+    @Transactional
     public ApplicationDto updateMeetingScore(MeetingScoreDto meetingScoreDto, HttpSession session) {
         Club club = checkClub(session);
 

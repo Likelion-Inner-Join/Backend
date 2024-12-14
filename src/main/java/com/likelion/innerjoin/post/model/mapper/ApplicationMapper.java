@@ -18,19 +18,37 @@ public class ApplicationMapper {
 
         ApplicationDto applicationDto = new ApplicationDto();
 
+        // applicationId
         applicationDto.setApplicationId(application.getId());
 
-        applicationDto.setClubId(recruiting.getPost().getClub().getId());
-        applicationDto.setClubName(recruiting.getPost().getClub().getName());
-
-        applicationDto.setPostId(recruiting.getPost().getId());
-        applicationDto.setPostTitle(recruiting.getPost().getTitle());
-
+        // form
         applicationDto.setFormId(recruiting.getForm().getId());
         applicationDto.setFormTitle(recruiting.getForm().getTitle());
         applicationDto.setFormDescription(recruiting.getForm().getDescription());
 
+        // club
+        applicationDto.setClubId(recruiting.getPost().getClub().getId());
+        applicationDto.setClubName(recruiting.getPost().getClub().getName());
+
+        // post
+        applicationDto.setPostId(recruiting.getPost().getId());
+        applicationDto.setPostTitle(recruiting.getPost().getTitle());
+
+
+        //applicant
         applicationDto.setApplicantId(application.getApplicant().getId());
+        applicationDto.setName(application.getApplicant().getName());
+        applicationDto.setEmail(application.getApplicant().getEmail());
+        applicationDto.setPhoneNum(application.getApplicant().getPhoneNum());
+        applicationDto.setSchool(application.getApplicant().getSchool());
+        applicationDto.setMajor(application.getApplicant().getMajor());
+        applicationDto.setStudentNumber(application.getApplicant().getStudentNumber());
+
+        applicationDto.setFormResult(application.getFormResult());
+        applicationDto.setFormScore(application.getFormScore());
+
+        applicationDto.setMeetingResult(application.getMeetingResult());
+        applicationDto.setMeetingScore(application.getMeetingScore());
 
         // 면접
         if(application.getMeetingTime() != null) {

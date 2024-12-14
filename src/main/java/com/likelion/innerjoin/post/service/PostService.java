@@ -6,8 +6,11 @@ import com.likelion.innerjoin.post.model.dto.PostModifyRequestDTO;
 import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.RecruitingRequestDTO;
+import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
+import com.likelion.innerjoin.post.model.dto.response.ApplicationListDto;
 import com.likelion.innerjoin.post.model.dto.response.PostCreateResponseDTO;
 import com.likelion.innerjoin.post.model.entity.*;
+import com.likelion.innerjoin.post.model.mapper.ApplicationMapper;
 import com.likelion.innerjoin.post.repository.FormRepository;
 import com.likelion.innerjoin.post.repository.PostImageRepository;
 import com.likelion.innerjoin.post.repository.PostRepository;
@@ -16,6 +19,7 @@ import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.repository.ClubRepository;
 import com.likelion.innerjoin.user.util.SessionVerifier;
+import jakarta.mail.Session;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +42,8 @@ public class PostService {
     private final FormRepository formRepository;
     private final RecruitingRepository recruitingRepository;
     private final BlobService blobService;
+    private final SessionVerifier sessionVerifier;
+    private final ApplicationMapper applicationMapper;
 
     // 모든 홍보글 조회
     public List<PostResponseDTO> getAllPosts() {
@@ -206,6 +213,40 @@ public class PostService {
 
         postRepository.delete(post);
 
+    }
+
+    /**
+     * 홍보글에 대한 모든 지원 조회
+     * @param post_id 홍보글 아이디
+     * @param session 세션값
+     * @return 지원 리스트
+     */
+    public ApplicationListDto getApplications(Long post_id, HttpSession session) {
+        User user = sessionVerifier.verifySession(session);
+        if(!(user instanceof Club club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+
+        Post post = postRepository.findById(post_id)
+                .orElseThrow(() -> new PostNotFoundException("해당 post가 없습니다: " + post_id));
+        if(!post.getClub().getId().equals(club.getId())) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+
+        List<Application> applicationList = new ArrayList<>();
+        for(Recruiting recruiting : post.getRecruitingList()){
+            applicationList.addAll(recruiting.getApplication());
+        }
+
+        ApplicationListDto applicationListDto = new ApplicationListDto();
+        applicationListDto.setPostId(post.getId());
+        applicationListDto.setApplicationList(
+                applicationList.stream()
+                        .map(application -> applicationMapper.toApplicationDto(application, false))
+                        .collect(Collectors.toList())
+        );
+
+        return applicationListDto;
     }
 
 }

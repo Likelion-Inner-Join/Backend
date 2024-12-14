@@ -1,6 +1,7 @@
 package com.likelion.innerjoin.post.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.likelion.innerjoin.post.model.entity.ResultType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,19 @@ public class ApplicationDto {
     private String postTitle;
 
     private Long applicantId;
+    private String name;
+    private String email;
+    private String phoneNum;
+    private String school;
+    private String major;
+    private String studentNumber;
+
+    private ResultType formResult;
+    private Integer formScore;
+
+    private ResultType meetingResult;
+    private Integer meetingScore;
+
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime meetingStartTime;
@@ -34,7 +48,7 @@ public class ApplicationDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime meetingEndTime;
 
-    private Integer meetingScore;
+
 
     private List<AnswerResponseDto> answers;
 }
