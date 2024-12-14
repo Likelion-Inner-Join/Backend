@@ -154,6 +154,11 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
 
+        // post의 club_id가 유저의 club_id와 일치하는지 확인
+        if (!post.getClub().getId().equals(club.getId())) {
+            throw new UnauthorizedException("홍보글의 club_id가 현재 유저의 club_id와 일치하지 않습니다.");
+        }
+
         // 수정된 내용으로 Post 엔티티 업데이트
         post.setTitle(postModifyRequestDTO.getTitle());
         post.setStartTime(LocalDateTime.parse(postModifyRequestDTO.getStartTime()));
@@ -181,7 +186,6 @@ public class PostService {
             }
         }
 
-        // Post 수정이 완료된 후 응답 DTO 반환
         return new PostCreateResponseDTO(post.getId());
     }
 
@@ -195,7 +199,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
 
-        // Club과 게시글의 Club이 일치하는지 확인
+        // 유저의 Club과 게시글의 Club이 일치하는지 확인
         if (!post.getClub().getId().equals(club.getId())) {
             throw new UnauthorizedException("삭제할 권한이 없습니다.");
         }
