@@ -101,6 +101,12 @@ public class PostController {
 
     @GetMapping("/{post_id}/application")
     @Operation(summary = "홍보글별 지원자 리스트 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "홍보글 삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다"),
+            @ApiResponse(responseCode = "403", description = "권한이 없습니다"),
+            @ApiResponse(responseCode = "404", description = "해당 post id를 찾을 수 없습니다")
+    })
     public CommonResponse<ApplicationListDto> getApplications(@PathVariable Long post_id, HttpSession session) {
         return new CommonResponse<>(postService.getApplications(post_id, session));
     }
