@@ -1,10 +1,7 @@
 package com.likelion.innerjoin.post.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public class RecruitingNotFoundException extends RuntimeException{
-    private String message;
+public class RecruitingNotFoundException extends RuntimeException {
+    public RecruitingNotFoundException(String message) {
+        super(message);
+    }
 }

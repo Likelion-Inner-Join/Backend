@@ -38,6 +38,13 @@ public class PostExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    // RecruitingNotFoundException 처리
+    @ExceptionHandler(RecruitingNotFoundException.class)
+    public ResponseEntity<CommonResponse<Object>> handleRecruitingNotFoundException(RecruitingNotFoundException ex) {
+        CommonResponse<Object> response = new CommonResponse<>(ErrorCode.RECRUITING_NOT_FOUND, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     // 기타 예외 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CommonResponse<Object>> handleGeneralException(Exception ex) {

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.UUID;
 
 import com.azure.storage.blob.BlobClient;
 
@@ -25,7 +26,10 @@ public class BlobService {
     }
 
     public String storeFile(String filename, InputStream content, long length) {
-        BlobClient client = containerClient().getBlobClient(filename);
+        // 파일 이름에 UUID 추가하여 고유한 이름 생성
+        String uniqueFilename = UUID.randomUUID().toString() + "_" + filename;
+
+        BlobClient client = containerClient().getBlobClient(uniqueFilename);
         client.upload(content, length);
         return client.getBlobUrl();  // URL 반환
     }
