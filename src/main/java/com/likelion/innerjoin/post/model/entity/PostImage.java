@@ -22,7 +22,7 @@ public class PostImage extends DataEntity {
     private Long id;
 
     @Column(name = "image_url")
-    private String url;
+    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")

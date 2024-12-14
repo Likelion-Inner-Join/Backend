@@ -31,6 +31,10 @@ public class Recruiting {
     @Column(name = "job_title")
     private String jobTitle;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recruitment_type")
+    private RecruitmentType recruitmentType;
+
     @OneToMany(mappedBy = "recruiting", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Application> application;
 

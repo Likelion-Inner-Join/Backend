@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.likelion.innerjoin.common.entity.DataEntity;
 import com.likelion.innerjoin.user.model.entity.Club;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +14,7 @@ import java.util.List;
 @Table(name = "post")
 @Data
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Post extends DataEntity {
@@ -40,17 +38,18 @@ public class Post extends DataEntity {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
 
-    private String body;
+    private String content;
 
     @Enumerated(EnumType.STRING)
-    private RecruitmentStatus status;
+    @Column(name = "recruitment_status")
+    private RecruitmentStatus recruitmentStatus;
 
     @Column(name = "recruitment_count")
-    private String recruitmentCount;
-
-    @Column(name = "recruitment_type")
-    private String recruitmentType;
+    private Integer recruitmentCount;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<PostImage> imageList;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Recruiting> recruitingList;
 }

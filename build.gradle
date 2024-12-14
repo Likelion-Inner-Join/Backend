@@ -36,6 +36,17 @@ dependencies {
 
 	//email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	//azure
+	//implementation 'com.azure:azure-storage-blob:12.12.0'
+	implementation 'com.azure.spring:spring-cloud-azure-starter-storage-blob'
+
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'com.azure.spring:spring-cloud-azure-dependencies:5.11.0'
+	}
 }
 
 tasks.named('test') {

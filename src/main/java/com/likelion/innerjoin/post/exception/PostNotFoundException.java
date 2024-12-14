@@ -1,10 +1,19 @@
 package com.likelion.innerjoin.post.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class PostNotFoundException extends RuntimeException {
-    private String message;
+
+    private final ErrorCode errorCode;
+
+    public PostNotFoundException() {
+        super(ErrorCode.POST_NOT_FOUND.getMessage());
+        this.errorCode = ErrorCode.POST_NOT_FOUND;
+    }
+
+    public PostNotFoundException(String message) {
+        super(message);
+        this.errorCode = ErrorCode.POST_NOT_FOUND;
+    }
 }
