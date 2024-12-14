@@ -45,6 +45,12 @@ public class ApplicationService {
         Recruiting recruiting = recruitingRepository.findById(applicationRequestDto.getRecruitingId())
                 .orElseThrow(() ->new RecruitingNotFoundException("모집중 직무가 존재하지 않습니다."));
 
+        for(Application application : recruiting.getApplication()){
+            if(application.getApplicant().equals(applicant)){
+                throw new AlreadyAppliedException("이미 지원한 지원자입니다.");
+            }
+        }
+
         Application application = new Application();
         application.setApplicant(applicant);
         application.setRecruiting(recruiting);

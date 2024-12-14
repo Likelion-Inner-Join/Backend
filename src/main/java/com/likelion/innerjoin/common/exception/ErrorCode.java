@@ -34,8 +34,9 @@ public enum ErrorCode {
     WRONG_SESSION_ERROR(false, HttpStatus.UNAUTHORIZED.value(), "세션값이 잘못되었습니다."),
     JSON_CONVERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "JSON 변환중 오류가 발생하였습니다."),
     CLUB_NOT_FOUND(false, 404, "동아리를 찾을 수 없습니다."),
-    FORM_NOT_FOUND(false, 404, "지원폼을 찾을 수 없습니다.");
+    FORM_NOT_FOUND(false, 404, "지원폼을 찾을 수 없습니다."),
 
+    ALREADY_APPLIED(false, HttpStatus.BAD_REQUEST.value(), "이미 지원했습니다.");
 
 
 

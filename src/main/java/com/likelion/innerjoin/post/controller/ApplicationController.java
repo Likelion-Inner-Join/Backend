@@ -28,6 +28,7 @@ public class ApplicationController {
     @Operation(summary = "지원하기 api")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공적인 응답"),
+            @ApiResponse(responseCode = "400", description = "이미 지원했습니다."),
             @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다."),
             @ApiResponse(responseCode = "404", description = "모집중 직무가 존재하지 않습니다")
     })

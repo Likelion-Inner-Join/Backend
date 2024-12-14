@@ -40,4 +40,11 @@ public class ApplicationExceptionHandler {
         log.warn("APPLICATION-004> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(ErrorCode.POST_NOT_FOUND);
     }
+
+    @ExceptionHandler(AlreadyAppliedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CommonResponse<?> alreadyApplied(AlreadyAppliedException e, HttpServletRequest request) {
+        log.warn("APPLICATION-005> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(ErrorCode.ALREADY_APPLIED);
+    }
 }
