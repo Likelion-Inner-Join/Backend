@@ -18,6 +18,20 @@ spring:
             hibernate:
                 default_batch_fetch_size: 500
                 format_sql: true
+
+    mail:
+        host: smtp.gmail.com
+        port: 587 # 2
+        username: ${MAIL_USERNAME} # 3
+        password: ${MAIL_PASSWORD} # 4
+        properties:
+            mail:
+                smtp:
+                    auth: true # 5
+                    timeout: 5000 # 6
+                    starttls:
+                        enable: true # 7
+
 server:
     servlet:
         session:

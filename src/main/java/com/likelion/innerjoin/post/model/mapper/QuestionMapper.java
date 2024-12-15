@@ -1,9 +1,11 @@
 package com.likelion.innerjoin.post.model.mapper;
 
+import com.likelion.innerjoin.post.model.dto.response.AnswerResponseDto;
 import com.likelion.innerjoin.post.model.dto.request.QuestionRequestDto;
 import com.likelion.innerjoin.post.model.dto.response.QuestionResponseDto;
 import com.likelion.innerjoin.post.model.entity.Form;
 import com.likelion.innerjoin.post.model.entity.Question;
+import com.likelion.innerjoin.post.model.entity.Response;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -27,6 +29,16 @@ public class QuestionMapper {
             questionResponseDtoList.add(toQuestionResponseDto(question));
         }
         return questionResponseDtoList;
+    }
+
+    public AnswerResponseDto toAnswerResponseDto(Response response) {
+        AnswerResponseDto answerResponseDto = new AnswerResponseDto();
+        answerResponseDto.setQuestion(response.getQuestion().getContent());
+        answerResponseDto.setAnswer(response.getContent());
+        answerResponseDto.setScore(response.getScore());
+        answerResponseDto.setQuestionType(response.getQuestion().getQuestionType());
+        answerResponseDto.setQuestionId(response.getQuestion().getId());
+        return answerResponseDto;
     }
 
     public List<Question> toQuestionList(List<QuestionRequestDto> questionResponseDtoList, Form form) {

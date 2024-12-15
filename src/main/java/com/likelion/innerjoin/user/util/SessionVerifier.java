@@ -23,7 +23,7 @@ public class SessionVerifier {
             throw new UnauthorizedException("잘못된 접근입니다.");
         }
 
-        Long userId = (Long) session.getAttribute("userId") ;
+        Long userId = (Long) session.getAttribute("userId");
 
         String role = (String) session.getAttribute("role");
 

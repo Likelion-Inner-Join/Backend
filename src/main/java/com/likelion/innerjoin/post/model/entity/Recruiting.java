@@ -37,4 +37,7 @@ public class Recruiting {
 
     @OneToMany(mappedBy = "recruiting", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Application> application;
+
+    @OneToMany(mappedBy = "recruiting", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<MeetingTime> meetingTimeList;
 }

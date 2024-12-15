@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     //success
     SUCCESS(true, HttpStatus.OK.value(), "요청에 성공했습니다."),
+    CREATED(true, HttpStatus.CREATED.value(), "생성에 성공했습니다."),
 
     //valid
     VALID_ERROR(false, HttpStatus.BAD_REQUEST.value(), "형식이 잘못되었습니다."),
@@ -26,13 +27,16 @@ public enum ErrorCode {
     //error
     UNIV_CERT_API_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "학교 인증 API 호출 중 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR(false,HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부에서 문제가 발생했습니다."),
+    RECRUITING_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "모집항목이 존재하지 않습니다."),
+    APPLICATION_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "지원 내역이 존재하지 않습니다."),
+    QUESTION_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "질문이 존재하지 않습니다."),
     POST_NOT_FOUND(false, 404, "홍보글을 찾을 수 없습니다."),
     WRONG_SESSION_ERROR(false, HttpStatus.UNAUTHORIZED.value(), "세션값이 잘못되었습니다."),
     JSON_CONVERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "JSON 변환중 오류가 발생하였습니다."),
     CLUB_NOT_FOUND(false, 404, "동아리를 찾을 수 없습니다."),
     FORM_NOT_FOUND(false, 404, "지원폼을 찾을 수 없습니다."),
-    RECRUITING_NOT_FOUND(false, 404, "모집중직무를 찾을 수 없습니다.");
-    ;
+
+    ALREADY_APPLIED(false, HttpStatus.BAD_REQUEST.value(), "이미 지원했습니다.");
 
 
 
