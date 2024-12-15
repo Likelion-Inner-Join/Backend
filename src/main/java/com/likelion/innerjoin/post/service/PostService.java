@@ -37,6 +37,7 @@ public class PostService {
     private final FormRepository formRepository;
     private final RecruitingRepository recruitingRepository;
     private final BlobService blobService;
+    private final SessionVerifier sessionVerifier;
 
     // 모든 홍보글 조회
     public List<PostResponseDTO> getAllPosts() {
@@ -85,9 +86,7 @@ public class PostService {
     @Transactional
     public PostCreateResponseDTO createPost(PostCreateRequestDTO postCreateRequestDTO, List<MultipartFile> images, HttpSession session) {
 
-        Long userId = (Long) session.getAttribute("userId"); // 세션에서 Long으로 가져오기
-        Club club = clubRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
+        Club club = checkClub(session);
 
         // Post 엔티티 생성 및 저장
         Post post = Post.builder()
@@ -146,16 +145,13 @@ public class PostService {
     // 홍보글 수정
     @Transactional
     public PostCreateResponseDTO updatePost(Long postId, PostModifyRequestDTO postModifyRequestDTO, List<MultipartFile> images, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        Club club = clubRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
 
         // 기존 홍보글 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
 
         // post의 club_id가 유저의 club_id와 일치하는지 확인
-        if (!post.getClub().getId().equals(club.getId())) {
+        if (!post.getClub().getId().equals(checkClub(session).getId())) {
             throw new UnauthorizedException("홍보글의 club_id가 현재 유저의 club_id와 일치하지 않습니다.");
         }
 
@@ -192,20 +188,23 @@ public class PostService {
     // 홍보글 삭제
     @Transactional
     public void deletePost(Long postId, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        Club club = clubRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("잘못된 유저입니다."));
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
 
         // 유저의 Club과 게시글의 Club이 일치하는지 확인
-        if (!post.getClub().getId().equals(club.getId())) {
+        if (!post.getClub().getId().equals(checkClub(session).getId())) {
             throw new UnauthorizedException("삭제할 권한이 없습니다.");
         }
 
         postRepository.delete(post);
+    }
 
+    Club checkClub(HttpSession session) {
+        User user = sessionVerifier.verifySession(session);
+        if (!(user instanceof Club club)) {
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        return club;
     }
 
 }
