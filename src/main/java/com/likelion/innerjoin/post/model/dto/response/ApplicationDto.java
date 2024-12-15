@@ -1,6 +1,7 @@
 package com.likelion.innerjoin.post.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.likelion.innerjoin.post.model.entity.RecruitmentStatus;
 import com.likelion.innerjoin.post.model.entity.ResultType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 public class ApplicationDto {
     private Long applicationId;
+
+    private Long recruitingId;
+    private String positionName;
+    private RecruitmentStatus recruitmentStatus;
 
     private Long formId;
     private String formTitle;
