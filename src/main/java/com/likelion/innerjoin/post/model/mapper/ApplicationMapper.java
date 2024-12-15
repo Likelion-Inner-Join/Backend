@@ -18,6 +18,11 @@ public class ApplicationMapper {
 
         ApplicationDto applicationDto = new ApplicationDto();
 
+        //recruiting
+        applicationDto.setRecruitingId(recruiting.getId());
+        applicationDto.setPositionName(recruiting.getJobTitle());
+        applicationDto.setRecruitmentStatus(recruiting.getPost().getRecruitmentStatus());
+
         // applicationId
         applicationDto.setApplicationId(application.getId());
 
@@ -33,6 +38,7 @@ public class ApplicationMapper {
         // post
         applicationDto.setPostId(recruiting.getPost().getId());
         applicationDto.setPostTitle(recruiting.getPost().getTitle());
+
 
 
         //applicant
