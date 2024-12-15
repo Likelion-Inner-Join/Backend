@@ -9,12 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/email")
 @RequiredArgsConstructor
 public class UnivCertController {
     private final UnivCertService univCertService;
 
-    @PostMapping("/certify")
+    @PostMapping("/send")
     public ResponseEntity<CommonResponse<Object>> certifyEmail(@RequestBody UnivCertRequestDto requestDto) {
         univCertService.certifyEmail(requestDto);
         return ResponseEntity.ok(new CommonResponse<>(ErrorCode.SUCCESS, null));
