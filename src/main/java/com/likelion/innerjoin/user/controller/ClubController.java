@@ -3,18 +3,16 @@ package com.likelion.innerjoin.user.controller;
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.user.model.dto.response.ClubCategoryResponseDto;
 import com.likelion.innerjoin.user.model.dto.request.EmailRequestDto;
+import com.likelion.innerjoin.user.model.dto.response.ClubResponseDto;
 import com.likelion.innerjoin.user.model.dto.response.EmailResponseDto;
 import com.likelion.innerjoin.user.service.ClubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -39,5 +37,13 @@ public class ClubController {
     public ResponseEntity<CommonResponse<List<ClubCategoryResponseDto>>> getClubCategories() {
         List<ClubCategoryResponseDto> categories = clubService.getClubCategories();
         return ResponseEntity.ok(new CommonResponse<>(categories));
+    }
+
+    //동아리 정보 조회 API
+    @Operation(summary = "동아리 정보 조회 API", description = "동아리 정보를 조회.")
+    @GetMapping("/{clubId}")
+    public CommonResponse<ClubResponseDto> getClubInfo(@PathVariable Long clubId, HttpSession session) {
+        ClubResponseDto clubResponse = clubService.getClubInfo(clubId, session);
+        return new CommonResponse<>(clubResponse);
     }
 }
