@@ -1,20 +1,21 @@
 package com.likelion.innerjoin.post.controller;
 
 import com.likelion.innerjoin.common.response.CommonResponse;
-import com.likelion.innerjoin.post.model.dto.PostModifyRequestDTO;
-import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
+import com.likelion.innerjoin.post.model.dto.request.MeetingTimeRequestDTO;
+import com.likelion.innerjoin.post.model.dto.request.PostModifyRequestDTO;
+import com.likelion.innerjoin.post.model.dto.response.PostResponseDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationListDto;
 import com.likelion.innerjoin.post.model.dto.response.PostCreateResponseDTO;
+import com.likelion.innerjoin.post.service.MeetingTimeService;
 import com.likelion.innerjoin.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +27,7 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-
+    private final MeetingTimeService meetingTimeService;
 
     @GetMapping
     @Operation(summary = "홍보글 리스트 조회 api")
@@ -109,6 +110,20 @@ public class PostController {
     })
     public CommonResponse<ApplicationListDto> getApplications(@PathVariable Long post_id, HttpSession session) {
         return new CommonResponse<>(postService.getApplications(post_id, session));
+    }
+
+
+    @PostMapping("/interview-times")
+    @Operation(summary = "홍보글의 면접 가능 시간 생성")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "면접 가능 시간 생성 성공"),
+            @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다"),
+            @ApiResponse(responseCode = "404", description = "해당 recruiting id를 찾을 수 없습니다"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    public CommonResponse<String> createInterviewTimes(@RequestBody MeetingTimeRequestDTO request, HttpSession session) {
+        meetingTimeService.createMeetingTimes(request.getRecruitingId(), request.getMeetingTimes(), session);
+        return new CommonResponse<>("면접 가능 시간이 성공적으로 생성되었습니다.");
     }
 
 }

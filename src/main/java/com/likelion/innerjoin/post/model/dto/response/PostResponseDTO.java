@@ -1,4 +1,4 @@
-package com.likelion.innerjoin.post.model.dto;
+package com.likelion.innerjoin.post.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
