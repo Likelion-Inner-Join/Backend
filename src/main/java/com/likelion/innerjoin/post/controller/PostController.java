@@ -3,6 +3,7 @@ package com.likelion.innerjoin.post.controller;
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.post.model.dto.request.MeetingTimeRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostModifyRequestDTO;
+import com.likelion.innerjoin.post.model.dto.response.MeetingTimeListResponseDTO;
 import com.likelion.innerjoin.post.model.dto.response.PostResponseDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationListDto;
@@ -114,7 +115,7 @@ public class PostController {
 
 
     @PostMapping("/interview-times")
-    @Operation(summary = "홍보글의 면접 가능 시간 생성")
+    @Operation(summary = "특정 recruiting의 면접 가능 시간 생성")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "면접 가능 시간 생성 성공"),
             @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다"),
@@ -124,6 +125,18 @@ public class PostController {
     public CommonResponse<String> createInterviewTimes(@RequestBody MeetingTimeRequestDTO request, HttpSession session) {
         meetingTimeService.createMeetingTimes(request.getRecruitingId(), request.getMeetingTimes(), session);
         return new CommonResponse<>("면접 가능 시간이 성공적으로 생성되었습니다.");
+    }
+
+    @GetMapping("/interview-times/{recruiting_id}")
+    @Operation(summary = "특정 recruiting의 면접 가능 시간 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "면접 가능 시간 목록 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 recruiting id를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+    })
+    public CommonResponse<MeetingTimeListResponseDTO> getMeetingTimes(@PathVariable Long recruiting_id) {
+        MeetingTimeListResponseDTO response = meetingTimeService.getMeetingTimesByRecruitingId(recruiting_id);
+        return new CommonResponse<>(response);
     }
 
 }

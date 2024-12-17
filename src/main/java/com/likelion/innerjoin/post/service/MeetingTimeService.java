@@ -3,6 +3,8 @@ package com.likelion.innerjoin.post.service;
 import com.likelion.innerjoin.post.exception.PostNotFoundException;
 import com.likelion.innerjoin.post.exception.RecruitingNotFoundException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
+import com.likelion.innerjoin.post.model.dto.response.MeetingTimeDTO;
+import com.likelion.innerjoin.post.model.dto.response.MeetingTimeListResponseDTO;
 import com.likelion.innerjoin.post.model.entity.MeetingTime;
 import com.likelion.innerjoin.post.model.entity.Recruiting;
 import com.likelion.innerjoin.post.model.entity.Post;
@@ -65,5 +67,24 @@ public class MeetingTimeService {
         }
         return club;
     }
+    public MeetingTimeListResponseDTO getMeetingTimesByRecruitingId(Long recruitingId) {
+        // Fetch the Recruiting entity (this will throw an exception if not found)
+        Recruiting recruiting = recruitingRepository.findById(recruitingId)
+                .orElseThrow(() -> new IllegalArgumentException("Recruiting not found with id: " + recruitingId));
 
+        // Fetch the associated MeetingTimes
+        List<MeetingTime> meetingTimes = meetingTimeRepository.findByRecruiting(recruiting);
+
+        // Map the result to the response format
+        List<MeetingTimeDTO> meetingTimeDtos = meetingTimes.stream()
+                .map(meetingTime -> new MeetingTimeDTO(
+                        meetingTime.getId(),
+                        meetingTime.getAllowedNum(),
+                        meetingTime.getMeetingStartTime(),
+                        meetingTime.getMeetingEndTime()
+                ))
+                .collect(Collectors.toList());
+
+        return new MeetingTimeListResponseDTO(recruitingId, meetingTimeDtos);
+    }
 }
