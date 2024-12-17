@@ -59,14 +59,6 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    // 특정 홍보글 조회
-    public PostResponseDTO getPostById(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));  // post가 없으면 예외 던짐
-
-        return toPostResponseDTO(post);
-    }
-
     // Post 엔티티를 PostResponseDTO로 변환
     private PostResponseDTO toPostResponseDTO(Post post) {
         // PostImage 리스트를 PostImageDTO로 변환
@@ -85,6 +77,39 @@ public class PostService {
                 .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentCount(post.getRecruitmentCount())
                 .image(imageDTOs)
+                .build();
+    }
+
+
+    // 특정 홍보글 조회
+    public PostResponseDTO getPostById(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));  // post가 없으면 예외 던짐
+
+        // post_id로 Recruiting 엔티티들을 조회
+        List<Recruiting> recruitingList = recruitingRepository.findByPostId(postId);
+
+        // 직무(jobTitle) 리스트 추가
+        List<String> jobTitleList = recruitingList.stream()
+                .map(Recruiting::getJobTitle)
+                .collect(Collectors.toList());
+
+        // PostResponseDTO로 변환하여 반환
+        return PostResponseDTO.builder()
+                .postId(post.getId())
+                .clubId(post.getClub().getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .createdAt(post.getCreatedAt())
+                .startTime(post.getStartTime())
+                .endTime(post.getEndTime())
+                .recruitmentStatus(post.getRecruitmentStatus().toString())  // Enum 값을 String으로 변환
+                .recruitmentCount(post.getRecruitmentCount())
+                .recruitmentType(post.getRecruitmentType().toString())
+                .jobTitleList(jobTitleList)
+                .image(post.getImageList().stream()
+                        .map(image -> new PostResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
+                        .collect(Collectors.toList()))  // 이미지 리스트 변환
                 .build();
     }
 
@@ -123,7 +148,6 @@ public class PostService {
                         .form(form)
                         .post(post)
                         .jobTitle(recruitingRequest.getJobTitle())
-                        .recruitmentType(RecruitmentType.valueOf(recruitingRequest.getRecruitmentType()))
                         .build();
 
                 recruitingRepository.save(recruiting);
