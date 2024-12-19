@@ -6,10 +6,12 @@ import com.likelion.innerjoin.post.model.entity.Recruiting;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface RecruitingRepository extends JpaRepository<Recruiting, Long> {
     void deleteByPost(Post post);
     Optional<Recruiting> findByPostAndForm(Post post, Form form);
+    List<Recruiting> findByPostId(Long postId);
 }
