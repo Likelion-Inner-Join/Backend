@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
-        info = @Info(title = "Zerock App", version = "v1"))
+        info = @Info(title = "Innerjoin App", version = "v1"))
 @RequiredArgsConstructor
 @Configuration
 public class SwaggerConfig {
