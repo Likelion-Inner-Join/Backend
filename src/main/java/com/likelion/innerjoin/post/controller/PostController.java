@@ -3,11 +3,8 @@ package com.likelion.innerjoin.post.controller;
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.post.model.dto.request.MeetingTimeRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostModifyRequestDTO;
-import com.likelion.innerjoin.post.model.dto.response.MeetingTimeListResponseDTO;
-import com.likelion.innerjoin.post.model.dto.response.PostResponseDTO;
+import com.likelion.innerjoin.post.model.dto.response.*;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
-import com.likelion.innerjoin.post.model.dto.response.ApplicationListDto;
-import com.likelion.innerjoin.post.model.dto.response.PostCreateResponseDTO;
 import com.likelion.innerjoin.post.service.MeetingTimeService;
 import com.likelion.innerjoin.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,8 +32,8 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "홍보글 리스트 조회 성공"),
             @ApiResponse(responseCode = "404", description = "홍보글을 찾을 수 없습니다")
     })
-    public CommonResponse<List<PostResponseDTO>> getPosts() {
-        List<PostResponseDTO> response = postService.getAllPosts();
+    public CommonResponse<List<PostListResponseDTO>> getPosts() {
+        List<PostListResponseDTO> response = postService.getAllPosts();
         return new CommonResponse<>(response);
     }
 
@@ -48,8 +44,8 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "홍보글 디테일 조회 성공"),
             @ApiResponse(responseCode = "404", description = "해당 id의 홍보글을 찾을 수 없습니다")
     })
-    public CommonResponse<PostResponseDTO> getPostById(@PathVariable Long post_id) {
-        PostResponseDTO postResponseDTO = postService.getPostById(post_id);
+    public CommonResponse<PostDetailResponseDTO> getPostById(@PathVariable Long post_id) {
+        PostDetailResponseDTO postResponseDTO = postService.getPostById(post_id);
         return new CommonResponse<>(postResponseDTO);
     }
 
@@ -101,6 +97,7 @@ public class PostController {
         return new CommonResponse<>("Post deleted successfully.");
     }
 
+
     @GetMapping("/{post_id}/application")
     @Operation(summary = "홍보글별 지원자 리스트 조회")
     @ApiResponses(value = {
@@ -126,6 +123,7 @@ public class PostController {
         meetingTimeService.createMeetingTimes(request.getRecruitingId(), request.getMeetingTimes(), session);
         return new CommonResponse<>("면접 가능 시간이 성공적으로 생성되었습니다.");
     }
+
 
     @GetMapping("/interview-times/{recruiting_id}")
     @Operation(summary = "특정 recruiting의 면접 가능 시간 목록 조회")

@@ -3,11 +3,12 @@ package com.likelion.innerjoin.post.service;
 import com.likelion.innerjoin.common.service.BlobService;
 import com.likelion.innerjoin.post.exception.*;
 import com.likelion.innerjoin.post.model.dto.request.PostModifyRequestDTO;
-import com.likelion.innerjoin.post.model.dto.response.PostResponseDTO;
+import com.likelion.innerjoin.post.model.dto.response.PostDetailResponseDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.RecruitingRequestDTO;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationListDto;
 import com.likelion.innerjoin.post.model.dto.response.PostCreateResponseDTO;
+import com.likelion.innerjoin.post.model.dto.response.PostListResponseDTO;
 import com.likelion.innerjoin.post.model.entity.*;
 import com.likelion.innerjoin.post.model.mapper.ApplicationMapper;
 import com.likelion.innerjoin.post.repository.FormRepository;
@@ -45,7 +46,7 @@ public class PostService {
 
 
     // 모든 홍보글 조회
-    public List<PostResponseDTO> getAllPosts() {
+    public List<PostListResponseDTO> getAllPosts() {
         List<Post> posts = postRepository.findAll();
 
         if (posts.isEmpty()) {
@@ -58,13 +59,13 @@ public class PostService {
     }
 
     // Post 엔티티를 PostResponseDTO로 변환
-    private PostResponseDTO toPostResponseDTO(Post post) {
+    private PostListResponseDTO toPostResponseDTO(Post post) {
         // PostImage 리스트를 PostImageDTO로 변환
-        List<PostResponseDTO.PostImageDTO> imageDTOs = post.getImageList().stream()
-                .map(image -> new PostResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
+        List<PostListResponseDTO.PostImageDTO> imageDTOs = post.getImageList().stream()
+                .map(image -> new PostListResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
                 .collect(Collectors.toList());
 
-        return PostResponseDTO.builder()
+        return PostListResponseDTO.builder()
                 .postId(post.getId())
                 .clubId(post.getClub().getId())
                 .title(post.getTitle())
@@ -74,13 +75,14 @@ public class PostService {
                 .endTime(post.getEndTime())
                 .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentCount(post.getRecruitmentCount())
+                .recruitmentType(post.getRecruitmentType().toString())
                 .image(imageDTOs)
                 .build();
     }
 
 
     // 특정 홍보글 디테일 조회
-    public PostResponseDTO getPostById(Long postId) {
+    public PostDetailResponseDTO getPostById(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
 
@@ -91,8 +93,8 @@ public class PostService {
         }
 
         // Recruiting 리스트를 변환
-        List<PostResponseDTO.RecruitingDTO> recruitingDTOList = recruitingList.stream()
-                .map(recruiting -> PostResponseDTO.RecruitingDTO.builder()
+        List<PostDetailResponseDTO.RecruitingDTO> recruitingDTOList = recruitingList.stream()
+                .map(recruiting -> PostDetailResponseDTO.RecruitingDTO.builder()
                         .recruitingId(recruiting.getId())
                         .formId(recruiting.getForm().getId())
                         .jobTitle(recruiting.getJobTitle())
@@ -100,7 +102,7 @@ public class PostService {
                 .collect(Collectors.toList());
 
         // PostResponseDTO로 변환하여 반환
-        return PostResponseDTO.builder()
+        return PostDetailResponseDTO.builder()
                 .postId(post.getId())
                 .clubId(post.getClub().getId())
                 .title(post.getTitle())
@@ -112,7 +114,7 @@ public class PostService {
                 .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentType(post.getRecruitmentType().toString())
                 .image(post.getImageList().stream()
-                        .map(image -> new PostResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
+                        .map(image -> new PostDetailResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
                         .collect(Collectors.toList()))
                 .recruitingList(recruitingDTOList)
                 .build();
