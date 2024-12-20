@@ -46,4 +46,14 @@ public class ClubController {
         ClubResponseDto clubResponse = clubService.getClubInfo(clubId, session);
         return new CommonResponse<>(clubResponse);
     }
+
+    @Operation(summary = "동아리 회원가입 API", description = "동아리 회원가입")
+    @PostMapping("/club/signup")
+    public ResponseEntity<CommonResponse<String>> signupClub(
+            @RequestPart("data") ClubSignupRequestDto requestDto,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        clubService.signupClub(requestDto, image);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new CommonResponse<>(null, "회원가입이 완료되었습니다."));
+    }
 }

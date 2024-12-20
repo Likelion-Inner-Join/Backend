@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,5 +101,37 @@ public class ClubService {
                 .imageUrl(club.getImageUrl())
                 .categoryId(club.getCategoryList())
                 .build();
+    }
+
+    private final BlobService blobService;
+
+    public void signupClub(ClubSignupRequestDto requestDto, MultipartFile image) {
+        // 이메일 중복 체크
+        if (clubRepository.findByEmail(requestDto.getEmail()).isPresent()) {
+            throw new EmailValidationException("이미 존재하는 이메일입니다.");
+        }
+
+        // 이미지 처리
+        String imageUrl = null;
+        if (image != null) {
+            try {
+                imageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 업로드 중 오류가 발생했습니다: " + e.getMessage());
+            }
+        }
+
+        // Club 엔티티 생성 및 저장
+        Club club = Club.builder()
+                .name(requestDto.getName())
+                .loginId(requestDto.getId())
+                .password(requestDto.getPassword())
+                .email(requestDto.getEmail())
+                .school(requestDto.getSchool())
+                .categoryList(requestDto.getCategory())
+                .imageUrl(imageUrl)
+                .build();
+
+        clubRepository.save(club);
     }
 }
