@@ -33,8 +33,7 @@ public class PostResponseDTO {
 
     private List<PostImageDTO> image;
 
-    // 직무 리스트
-    private List<String> jobTitleList;
+    private List<RecruitingDTO> recruitingList;
 
     @Data
     @Builder
@@ -43,4 +42,14 @@ public class PostResponseDTO {
         private Long imageId;
         private String imageUrl;
     }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class RecruitingDTO {
+        private Long recruitingId;
+        private Long formId;
+        private String jobTitle;
+    }
+
 }
