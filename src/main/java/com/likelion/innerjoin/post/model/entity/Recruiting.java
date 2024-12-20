@@ -1,5 +1,6 @@
 package com.likelion.innerjoin.post.model.entity;
 
+import com.likelion.innerjoin.common.entity.DataEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Recruiting {
+public class Recruiting extends DataEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recruiting_id")

@@ -122,11 +122,12 @@ public class PostService {
         Post post = Post.builder()
                 .club(club)
                 .title(postCreateRequestDTO.getTitle())
-                .startTime(LocalDateTime.parse(postCreateRequestDTO.getStartTime()))
-                .endTime(LocalDateTime.parse(postCreateRequestDTO.getEndTime()))
+                .startTime(postCreateRequestDTO.getStartTime())
+                .endTime(postCreateRequestDTO.getEndTime())
                 .content(postCreateRequestDTO.getContent())
                 .recruitmentStatus(RecruitmentStatus.valueOf(postCreateRequestDTO.getRecruitmentStatus()))
                 .recruitmentCount(postCreateRequestDTO.getRecruitmentCount())
+                .recruitmentType(RecruitmentType.valueOf(postCreateRequestDTO.getRecruitmentType()))
                 .build();
 
         postRepository.save(post);
