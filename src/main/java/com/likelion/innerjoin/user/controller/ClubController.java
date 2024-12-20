@@ -1,18 +1,19 @@
 package com.likelion.innerjoin.user.controller;
 
 import com.likelion.innerjoin.common.response.CommonResponse;
+import com.likelion.innerjoin.user.model.dto.request.ClubSignUpRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubCategoryResponseDto;
 import com.likelion.innerjoin.user.model.dto.request.EmailRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubResponseDto;
 import com.likelion.innerjoin.user.model.dto.response.EmailResponseDto;
 import com.likelion.innerjoin.user.service.ClubService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -45,5 +46,15 @@ public class ClubController {
     public CommonResponse<ClubResponseDto> getClubInfo(@PathVariable Long clubId, HttpSession session) {
         ClubResponseDto clubResponse = clubService.getClubInfo(clubId, session);
         return new CommonResponse<>(clubResponse);
+    }
+
+    @Operation(summary = "동아리 회원가입 API", description = "동아리 회원가입")
+    @PostMapping("/signup")
+    public ResponseEntity<CommonResponse<String>> signupClub(
+            @RequestPart("data") ClubSignUpRequestDto clubSignUpRequestDto,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        clubService.signupClub(clubSignUpRequestDto, image);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new CommonResponse<>("회원가입이 완료되었습니다."));
     }
 }

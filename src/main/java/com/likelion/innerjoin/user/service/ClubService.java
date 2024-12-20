@@ -1,6 +1,11 @@
 package com.likelion.innerjoin.user.service;
 
+import com.likelion.innerjoin.common.service.BlobService;
+import com.likelion.innerjoin.post.exception.ImageProcessingException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
+import com.likelion.innerjoin.post.model.entity.PostImage;
+import com.likelion.innerjoin.user.exception.SignUpIDException;
+import com.likelion.innerjoin.user.model.dto.request.ClubSignUpRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubCategoryResponseDto;
 
 import com.likelion.innerjoin.user.model.dto.response.ClubResponseDto;
@@ -17,7 +22,9 @@ import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,5 +107,41 @@ public class ClubService {
                 .imageUrl(club.getImageUrl())
                 .categoryId(club.getCategoryList())
                 .build();
+    }
+
+    private final BlobService blobService;
+
+    public void signupClub(ClubSignUpRequestDto requestDto, MultipartFile image) {
+        // 아이디 중복 체크
+        if (clubRepository.findByLoginId(requestDto.getLoginId()).isPresent()) {
+            throw new SignUpIDException("이미 존재하는 아이디입니다.");
+        }
+        // 이메일 중복 체크
+        if (clubRepository.findByEmail(requestDto.getEmail()).isPresent()) {
+            throw new EmailValidationException("이미 존재하는 이메일입니다.");
+        }
+
+        // 이미지 처리
+        String imageUrl = null;
+        if (image != null) {
+            try {
+                imageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
+            } catch (IOException e) {
+                throw new RuntimeException("이미지 업로드 중 오류가 발생했습니다: " + e.getMessage());
+            }
+        }
+
+        // Club 엔티티 생성 및 저장
+        Club club = Club.builder()
+                .name(requestDto.getName())
+                .loginId(requestDto.getLoginId())
+                .password(requestDto.getPassword())
+                .email(requestDto.getEmail())
+                .school(requestDto.getSchool())
+                .categoryList(requestDto.getCategory())
+                .imageUrl(imageUrl)
+                .build();
+
+        clubRepository.save(club);
     }
 }

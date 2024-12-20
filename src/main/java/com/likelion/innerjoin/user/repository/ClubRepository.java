@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface ClubRepository extends JpaRepository<Club, Long> {
     Club findByLoginIdAndPassword(String loginId, String password);
     Optional<Club> findByEmail(String email);
+    Optional<Club> findByLoginId(String loginId);
 }
