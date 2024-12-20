@@ -4,6 +4,7 @@ import com.likelion.innerjoin.common.service.BlobService;
 import com.likelion.innerjoin.post.exception.ImageProcessingException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
 import com.likelion.innerjoin.post.model.entity.PostImage;
+import com.likelion.innerjoin.user.exception.SignUpIDException;
 import com.likelion.innerjoin.user.model.dto.request.ClubSignUpRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubCategoryResponseDto;
 
@@ -111,6 +112,10 @@ public class ClubService {
     private final BlobService blobService;
 
     public void signupClub(ClubSignUpRequestDto requestDto, MultipartFile image) {
+        // 아이디 중복 체크
+        if (clubRepository.findByLoginId(requestDto.getLoginId()).isPresent()) {
+            throw new SignUpIDException("이미 존재하는 아이디입니다.");
+        }
         // 이메일 중복 체크
         if (clubRepository.findByEmail(requestDto.getEmail()).isPresent()) {
             throw new EmailValidationException("이미 존재하는 이메일입니다.");
