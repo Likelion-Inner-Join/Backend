@@ -1,6 +1,10 @@
 package com.likelion.innerjoin.user.service;
 
+import com.likelion.innerjoin.common.service.BlobService;
+import com.likelion.innerjoin.post.exception.ImageProcessingException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
+import com.likelion.innerjoin.post.model.entity.PostImage;
+import com.likelion.innerjoin.user.model.dto.request.ClubSignUpRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubCategoryResponseDto;
 
 import com.likelion.innerjoin.user.model.dto.response.ClubResponseDto;
@@ -17,6 +21,7 @@ import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -105,7 +110,7 @@ public class ClubService {
 
     private final BlobService blobService;
 
-    public void signupClub(ClubSignupRequestDto requestDto, MultipartFile image) {
+    public void signupClub(ClubSignUpRequestDto requestDto, MultipartFile image) {
         // 이메일 중복 체크
         if (clubRepository.findByEmail(requestDto.getEmail()).isPresent()) {
             throw new EmailValidationException("이미 존재하는 이메일입니다.");
@@ -124,7 +129,7 @@ public class ClubService {
         // Club 엔티티 생성 및 저장
         Club club = Club.builder()
                 .name(requestDto.getName())
-                .loginId(requestDto.getId())
+                .loginId(requestDto.getLoginId())
                 .password(requestDto.getPassword())
                 .email(requestDto.getEmail())
                 .school(requestDto.getSchool())
