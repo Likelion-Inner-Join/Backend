@@ -15,6 +15,7 @@ public class PostListResponseDTO {
 
     private Long postId;
     private Long clubId;
+    private String clubName;
     private String title;
     private String content;
 
