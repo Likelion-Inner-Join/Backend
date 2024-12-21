@@ -26,7 +26,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -108,6 +110,9 @@ public class PostService {
                         .build())
                 .collect(Collectors.toList());
 
+        // D-Day 계산
+        int dDay = (int) ChronoUnit.DAYS.between(LocalDate.now(), post.getEndTime().toLocalDate());
+
         // PostResponseDTO로 변환하여 반환
         return PostDetailResponseDTO.builder()
                 .postId(post.getId())
@@ -121,6 +126,8 @@ public class PostService {
                 .recruitmentCount(post.getRecruitmentCount())
                 .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentType(post.getRecruitmentType().toString())
+                .dDay(dDay) // D-Day 추가
+                .categoryName(post.getClub().getCategory().getCategoryName())
                 .image(post.getImageList().stream()
                         .map(image -> new PostDetailResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
                         .collect(Collectors.toList()))

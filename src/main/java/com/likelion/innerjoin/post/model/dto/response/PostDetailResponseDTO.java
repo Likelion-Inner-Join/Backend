@@ -32,6 +32,9 @@ public class PostDetailResponseDTO {
     private String recruitmentStatus;
     private String recruitmentType;
 
+    private Integer dDay; // 마감일(endTime)까지 남은 일수
+    private String categoryName;
+
     private List<PostImageDTO> image;
 
     private List<RecruitingDTO> recruitingList;
