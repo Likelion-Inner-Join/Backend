@@ -36,6 +36,8 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final ClubCategoryRepository clubCategoryRepository;
     private final SessionVerifier sessionVerifier;
+    //private final BlobService blobService;
+
 
     /**
      * 이메일 중복 확인
@@ -66,6 +68,7 @@ public class ClubService {
                 .collect(Collectors.toList());
     }
 
+
     /**
      * 동아리 회원 정보 조회
      *
@@ -95,6 +98,8 @@ public class ClubService {
         }
         return club;
     }
+
+
     /**
      * Club 엔티티 -> ClubResponseDto 변환
      */
@@ -105,12 +110,11 @@ public class ClubService {
                 .name(club.getName())
                 .school(club.getSchool())
                 .email(club.getEmail())
-                .imageUrl(club.getImageUrl())
-                .categoryId(club.getCategory())
+                .imageUrl(club.getImageUrl()) //이미지 임시
+                .categoryId(club.getCategory().getId())
+                .categoryName(club.getCategory().getCategoryName())
                 .build();
     }
-
-    private final BlobService blobService;
 
     public void signupClub(ClubSignUpRequestDto requestDto) {
         // 아이디 중복 체크
@@ -132,6 +136,9 @@ public class ClubService {
 //            }
 //        }
 
+        ClubCategory category = clubCategoryRepository.findById(requestDto.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + requestDto.getCategoryId()));
+
         // Club 엔티티 생성 및 저장
         Club club = Club.builder()
                 .name(requestDto.getName())
@@ -139,8 +146,8 @@ public class ClubService {
                 .password(requestDto.getPassword())
                 .email(requestDto.getEmail())
                 .school(requestDto.getSchool())
-                .category(requestDto.getCategory())
-                //.imageUrl(imageUrl)
+                .category(category)
+                //.imageUrl(imageUrl) //회원가입 시에는 이미지 필요 없음
                 .build();
 
         clubRepository.save(club);

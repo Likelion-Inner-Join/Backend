@@ -32,7 +32,8 @@ public class MeetingTimeService {
     private final MeetingTimeRepository meetingTimeRepository;
     private final PostRepository postRepository;
     private final SessionVerifier sessionVerifier;
-
+    
+    //면접시간 리스트 생성
     public void createMeetingTimes(Long recruitingId, List<MeetingTimeRequestDTO.MeetingTimeDto> meetingTimeDtos, HttpSession session) {
 
         Recruiting recruiting = recruitingRepository.findById(recruitingId)
@@ -70,7 +71,7 @@ public class MeetingTimeService {
         return club;
     }
 
-
+    //면접시간 정보 조회
     public CommonResponse<MeetingTimeListResponseDTO> getMeetingTimesByRecruitingId(Long recruitingId) {
         // recruiting 찾기
         Recruiting recruiting = recruitingRepository.findById(recruitingId)
