@@ -46,7 +46,7 @@ public class PostService {
     private final ApplicationMapper applicationMapper;
 
 
-    // 홍보글 조회
+    // 홍보글 리스트 조회
     public List<PostListResponseDTO> getAllPosts(String clubName) {
         List<Post> posts;
 
@@ -65,6 +65,17 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    private int calculateDDay(LocalDateTime endTime) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (endTime.isBefore(now)) {
+            return -1; // endTime이 현재 시각 이전이면 -1
+        } else if (endTime.toLocalDate().isEqual(now.toLocalDate())) {
+            return 0; // 당일이고 아직 마감 시간이 지나지 않았으면 0
+        } else {
+            return (int) ChronoUnit.DAYS.between(now.toLocalDate(), endTime.toLocalDate()); // 남은 일수 계산
+        }
+    }
 
     // Post 엔티티를 PostResponseDTO로 변환
     private PostListResponseDTO toPostResponseDTO(Post post) {
@@ -74,7 +85,7 @@ public class PostService {
                 .collect(Collectors.toList());
 
         // D-Day 계산
-        int dDay = (int) ChronoUnit.DAYS.between(LocalDate.now(), post.getEndTime().toLocalDate());
+        int dDay = calculateDDay(post.getEndTime());
 
         return PostListResponseDTO.builder()
                 .postId(post.getId())
@@ -116,7 +127,7 @@ public class PostService {
                 .collect(Collectors.toList());
 
         // D-Day 계산
-        int dDay = (int) ChronoUnit.DAYS.between(LocalDate.now(), post.getEndTime().toLocalDate());
+        int dDay = calculateDDay(post.getEndTime());
 
         // PostResponseDTO로 변환하여 반환
         return PostDetailResponseDTO.builder()
