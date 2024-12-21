@@ -73,6 +73,9 @@ public class PostService {
                 .map(image -> new PostListResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
                 .collect(Collectors.toList());
 
+        // D-Day 계산
+        int dDay = (int) ChronoUnit.DAYS.between(LocalDate.now(), post.getEndTime().toLocalDate());
+
         return PostListResponseDTO.builder()
                 .postId(post.getId())
                 .clubId(post.getClub().getId())
@@ -82,9 +85,11 @@ public class PostService {
                 .createdAt(post.getCreatedAt())
                 .startTime(post.getStartTime())
                 .endTime(post.getEndTime())
-                .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentCount(post.getRecruitmentCount())
+                .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentType(post.getRecruitmentType().toString())
+                .dDay(dDay) // D-Day 추가
+                .categoryName(post.getClub().getCategory().getCategoryName()) // Category Name 추가
                 .image(imageDTOs)
                 .build();
     }
@@ -126,7 +131,7 @@ public class PostService {
                 .recruitmentCount(post.getRecruitmentCount())
                 .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentType(post.getRecruitmentType().toString())
-                .dDay(dDay) // D-Day 추가
+                .dDay(dDay)
                 .categoryName(post.getClub().getCategory().getCategoryName())
                 .image(post.getImageList().stream()
                         .map(image -> new PostDetailResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
