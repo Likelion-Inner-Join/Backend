@@ -41,6 +41,7 @@ public class Club extends DataEntity implements User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @Column(name = "category_id")
     private ClubCategory category;
 
     @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = CascadeType.ALL)
