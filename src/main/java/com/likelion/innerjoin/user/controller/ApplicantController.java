@@ -2,8 +2,11 @@ package com.likelion.innerjoin.user.controller;
 
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.user.model.dto.request.ApplicantSignUpRequestDto;
+import com.likelion.innerjoin.user.model.dto.response.ApplicantResponseDto;
+import com.likelion.innerjoin.user.model.dto.response.ClubResponseDto;
 import com.likelion.innerjoin.user.service.ApplicantService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,5 +31,13 @@ public class ApplicantController {
         applicantService.signUpApplicant(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new CommonResponse<>("회원가입이 완료되었습니다."));
+    }
+
+    // 지원자 정보 조회
+    @Operation(summary = "동아리 정보 조회 API", description = "동아리 정보를 조회.")
+    @GetMapping("/{applicantId}")
+    public CommonResponse<ApplicantResponseDto> getApplicantInfo(@PathVariable Long applicantId, HttpSession session) {
+        ApplicantResponseDto applicantResponse = applicantService.getApplicantInfo(applicantId, session);
+        return new CommonResponse<>(applicantResponse);
     }
 }
