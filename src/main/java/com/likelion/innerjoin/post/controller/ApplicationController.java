@@ -5,7 +5,7 @@ import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.post.model.dto.request.*;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
-import com.likelion.innerjoin.post.model.dto.response.MeetingTimeDTO;
+import com.likelion.innerjoin.post.model.dto.response.MeetingTimeResponseDTO;
 import com.likelion.innerjoin.post.model.entity.Application;
 import com.likelion.innerjoin.post.service.ApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -105,7 +105,7 @@ public class ApplicationController {
             @ApiResponse(responseCode = "404", description = "지원 내역이 존재하지 않습니다."),
             @ApiResponse(responseCode = "400", description = "면접 허용 인원을 초과했습니다."),
     })
-    public CommonResponse<MeetingTimeDTO> selectMeetingTime(
+    public CommonResponse<MeetingTimeResponseDTO> selectMeetingTime(
             @RequestBody MeetingTimeSelectionDto meetingTimeDto,
             HttpSession session) {
         return new CommonResponse<>(applicationService.selectMeetingTime(meetingTimeDto, session));
