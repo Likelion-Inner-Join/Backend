@@ -47,4 +47,18 @@ public class ApplicationExceptionHandler {
         log.warn("APPLICATION-005> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
         return new CommonResponse<>(ErrorCode.ALREADY_APPLIED);
     }
+
+    @ExceptionHandler(MeetingTimeNotFound.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResponse<?> meetingNotFound(MeetingTimeNotFound e, HttpServletRequest request) {
+        log.warn("APPLICATION-006> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(ErrorCode.MEETING_TIME_NOT_FOUND);
+    }
+
+    @ExceptionHandler(AllowedNumExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CommonResponse<?> allowedNumExceeded(AllowedNumExceededException e, HttpServletRequest request) {
+        log.warn("APPLICATION-006> 요청 URI: " + request.getRequestURI() + ", 에러 메세지: " + e.getMessage());
+        return new CommonResponse<>(ErrorCode.ALLOWED_NUM_EXCEEDED);
+    }
 }
