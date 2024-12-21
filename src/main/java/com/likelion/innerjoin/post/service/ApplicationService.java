@@ -5,6 +5,7 @@ import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.post.exception.*;
 import com.likelion.innerjoin.post.model.dto.request.*;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
+import com.likelion.innerjoin.post.model.dto.response.MeetingTimeDTO;
 import com.likelion.innerjoin.post.model.entity.*;
 import com.likelion.innerjoin.post.model.mapper.ApplicationMapper;
 import com.likelion.innerjoin.post.repository.*;
@@ -55,9 +56,17 @@ public class ApplicationService {
         application.setApplicant(applicant);
         application.setRecruiting(recruiting);
 
-        // TODO: recruiting type에 따라서 결과를 미리 넣어놓기 (response도 있는지 없는지에 따라 처리해줘야함)
-        application.setFormResult(ResultType.PENDING);
-        application.setMeetingResult(ResultType.PENDING);
+        Post post = recruiting.getPost();
+        if(post.getRecruitmentType() == RecruitmentType.FORM_AND_MEETING){
+            application.setFormResult(ResultType.PENDING);
+            application.setMeetingResult(ResultType.PENDING);
+        }else if(post.getRecruitmentType() == RecruitmentType.FORM_ONLY){
+            application.setFormResult(ResultType.PENDING);
+            application.setMeetingResult(ResultType.PASS);
+        }else if(post.getRecruitmentType() == RecruitmentType.MEETING_ONLY){
+            application.setFormResult(ResultType.PASS);
+            application.setMeetingResult(ResultType.PENDING);
+        }
 
         application.setResponseList(new ArrayList<>());
         for(AnswerRequestDto answer : applicationRequestDto.getAnswers()) {
@@ -217,6 +226,43 @@ public class ApplicationService {
 
         mailSender.send(message);
         return ErrorCode.SUCCESS;
+    }
+
+    /**
+     * 면접 시간 설정
+     * @param dto 설정할 면접시간정보
+     * @param session 세션값
+     * @return MeetingTimeDTO
+     */
+    @Transactional
+    public MeetingTimeDTO selectMeetingTime (MeetingTimeSelectionDto dto, HttpSession session){
+        Applicant applicant = checkApplicant(session);
+        Application application = applicationRepository.findById(dto.getApplicationId())
+                .orElseThrow(()-> new ApplicationNotFoundException("지원 이력이 없습니다."));
+        if(!application.getApplicant().equals(applicant)){
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+
+        MeetingTime meetingTime = meetingTimeRepository.findById(dto.getMeetingTimeId())
+                .orElseThrow(() -> new MeetingTimeNotFound("면접시간이 존재하지 않습니다."));
+        if(!meetingTime.getRecruiting().equals(application.getRecruiting())){
+            throw new UnauthorizedException("권한이 없습니다.");
+        }
+        if(meetingTime.getAllowedNum()<= meetingTime.getApplicationList().size()){
+            throw new AllowedNumExceededException("면접 허용 인원을 초과했습니다.");
+        }
+
+        application.setMeetingTime(meetingTime);
+        applicationRepository.save(application);
+
+        MeetingTimeDTO meetingTimeDTO = new MeetingTimeDTO(
+                meetingTime.getId(),
+                meetingTime.getAllowedNum(),
+                meetingTime.getMeetingStartTime(),
+                meetingTime.getMeetingEndTime()
+        );
+
+        return meetingTimeDTO;
     }
 
     Applicant checkApplicant (HttpSession session) {

@@ -10,7 +10,7 @@ public class ClubResponseDto {
     private String id;
     private String name;
     private String school;
-    private String categoryId;
+    private Long categoryId;
     private String email;
     private String imageUrl;
 }
