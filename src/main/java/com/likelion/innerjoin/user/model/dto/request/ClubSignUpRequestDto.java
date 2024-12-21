@@ -9,5 +9,5 @@ public class ClubSignUpRequestDto {
     private String password;     // 비밀번호
     private String email;        // 이메일
     private String school;       // 학교
-    private String category;     // 카테고리 리스트 (JSON 문자열로 받음)
+    private Long category;
 }

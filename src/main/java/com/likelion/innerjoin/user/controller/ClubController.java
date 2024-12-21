@@ -1,5 +1,6 @@
 package com.likelion.innerjoin.user.controller;
 
+import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.user.model.dto.request.ClubSignUpRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubCategoryResponseDto;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -50,11 +50,10 @@ public class ClubController {
 
     @Operation(summary = "동아리 회원가입 API", description = "동아리 회원가입")
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse<String>> signupClub(
-            @RequestPart("data") ClubSignUpRequestDto clubSignUpRequestDto,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
-        clubService.signupClub(clubSignUpRequestDto, image);
+    public ResponseEntity<CommonResponse<String>> signupClub(@RequestBody ClubSignUpRequestDto clubSignUpRequestDto) {
+        clubService.signupClub(clubSignUpRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new CommonResponse<>("회원가입이 완료되었습니다."));
+                .body(new CommonResponse<>(ErrorCode.CREATED, "회원가입이 완료되었습니다."));
     }
+
 }
