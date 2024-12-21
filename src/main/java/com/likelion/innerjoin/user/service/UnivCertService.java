@@ -1,18 +1,18 @@
 package com.likelion.innerjoin.user.service;
 
-import com.likelion.innerjoin.common.exception.ErrorCode;
-import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.user.exception.EmailValidationException;
 import com.likelion.innerjoin.user.exception.UnivCertException;
 import com.likelion.innerjoin.user.exception.UnivEmailDomainException;
 import com.likelion.innerjoin.user.exception.UnivNameException;
+import com.likelion.innerjoin.user.model.dto.request.UnivCertCodeRequestDto;
 import com.likelion.innerjoin.user.model.dto.request.UnivCertRequestDto;
-import com.likelion.innerjoin.user.model.dto.response.UnivCertResponseDto;
+import com.likelion.innerjoin.user.model.dto.response.UnivCertCodeResponseDto;
 import com.univcert.api.UnivCert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Service
@@ -55,7 +55,37 @@ public class UnivCertService {
                 throw new UnivCertException(errorMessage);
             }
         } catch (Exception e) {
-            throw new UnivEmailDomainException("학교명과 이메일 도메인이 일치하지 않습니다.");
+            throw new UnivEmailDomainException(e.getMessage());
         }
     }
+
+    //이메일 코드 확인
+    public UnivCertCodeResponseDto verifyCode(UnivCertCodeRequestDto requestDto) {
+        try {
+            Map<String, Object> responseMap = UnivCert.certifyCode(
+                    apiKey,
+                    requestDto.getEmail(),
+                    requestDto.getUnivName(),
+                    requestDto.getCode()
+            );
+
+            if (Boolean.TRUE.equals(responseMap.get("success"))) {
+                UnivCert.clear(apiKey,requestDto.getEmail());
+                return UnivCertCodeResponseDto.builder()
+                        .success(true)
+                        .univName((String) responseMap.get("univName"))
+                        .certifiedEmail((String) responseMap.get("certified_email"))
+                        .certifiedDate((String) responseMap.get("certified_date"))
+                        .build();
+
+            } else {
+                throw new UnivCertException((String) responseMap.get("message"));
+            }
+        } catch (IOException e) {
+            throw new UnivCertException("인증 코드 확인 중 오류가 발생했습니다: " + e.getMessage());
+        } catch (Exception e) {
+            throw new UnivCertException("예상치 못한 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
 }
