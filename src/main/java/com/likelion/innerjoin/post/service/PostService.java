@@ -2,13 +2,13 @@ package com.likelion.innerjoin.post.service;
 
 import com.likelion.innerjoin.common.service.BlobService;
 import com.likelion.innerjoin.post.exception.*;
-import com.likelion.innerjoin.post.model.dto.PostModifyRequestDTO;
-import com.likelion.innerjoin.post.model.dto.PostResponseDTO;
+import com.likelion.innerjoin.post.model.dto.request.PostModifyRequestDTO;
+import com.likelion.innerjoin.post.model.dto.response.PostDetailResponseDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.RecruitingRequestDTO;
-import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationListDto;
 import com.likelion.innerjoin.post.model.dto.response.PostCreateResponseDTO;
+import com.likelion.innerjoin.post.model.dto.response.PostListResponseDTO;
 import com.likelion.innerjoin.post.model.entity.*;
 import com.likelion.innerjoin.post.model.mapper.ApplicationMapper;
 import com.likelion.innerjoin.post.repository.FormRepository;
@@ -19,7 +19,6 @@ import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.repository.ClubRepository;
 import com.likelion.innerjoin.user.util.SessionVerifier;
-import jakarta.mail.Session;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +46,7 @@ public class PostService {
 
 
     // 모든 홍보글 조회
-    public List<PostResponseDTO> getAllPosts() {
+    public List<PostListResponseDTO> getAllPosts() {
         List<Post> posts = postRepository.findAll();
 
         if (posts.isEmpty()) {
@@ -59,24 +58,17 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    // 특정 홍보글 조회
-    public PostResponseDTO getPostById(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));  // post가 없으면 예외 던짐
-
-        return toPostResponseDTO(post);
-    }
-
     // Post 엔티티를 PostResponseDTO로 변환
-    private PostResponseDTO toPostResponseDTO(Post post) {
+    private PostListResponseDTO toPostResponseDTO(Post post) {
         // PostImage 리스트를 PostImageDTO로 변환
-        List<PostResponseDTO.PostImageDTO> imageDTOs = post.getImageList().stream()
-                .map(image -> new PostResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
+        List<PostListResponseDTO.PostImageDTO> imageDTOs = post.getImageList().stream()
+                .map(image -> new PostListResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
                 .collect(Collectors.toList());
 
-        return PostResponseDTO.builder()
+        return PostListResponseDTO.builder()
                 .postId(post.getId())
                 .clubId(post.getClub().getId())
+                .clubName(post.getClub().getName())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
@@ -84,7 +76,49 @@ public class PostService {
                 .endTime(post.getEndTime())
                 .recruitmentStatus(post.getRecruitmentStatus().toString())
                 .recruitmentCount(post.getRecruitmentCount())
+                .recruitmentType(post.getRecruitmentType().toString())
                 .image(imageDTOs)
+                .build();
+    }
+
+
+    // 특정 홍보글 디테일 조회
+    public PostDetailResponseDTO getPostById(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
+
+        // Recruiting 엔티티 조회
+        List<Recruiting> recruitingList = recruitingRepository.findByPostId(postId);
+        if (recruitingList == null || recruitingList.isEmpty()) {
+            throw new RecruitingNotFoundException("Recruiting not found with post_id: " + postId);
+        }
+
+        // Recruiting 리스트를 변환
+        List<PostDetailResponseDTO.RecruitingDTO> recruitingDTOList = recruitingList.stream()
+                .map(recruiting -> PostDetailResponseDTO.RecruitingDTO.builder()
+                        .recruitingId(recruiting.getId())
+                        .formId(recruiting.getForm().getId())
+                        .jobTitle(recruiting.getJobTitle())
+                        .build())
+                .collect(Collectors.toList());
+
+        // PostResponseDTO로 변환하여 반환
+        return PostDetailResponseDTO.builder()
+                .postId(post.getId())
+                .clubId(post.getClub().getId())
+                .clubName(post.getClub().getName())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .createdAt(post.getCreatedAt())
+                .startTime(post.getStartTime())
+                .endTime(post.getEndTime())
+                .recruitmentCount(post.getRecruitmentCount())
+                .recruitmentStatus(post.getRecruitmentStatus().toString())
+                .recruitmentType(post.getRecruitmentType().toString())
+                .image(post.getImageList().stream()
+                        .map(image -> new PostDetailResponseDTO.PostImageDTO(image.getId(), image.getImageUrl()))
+                        .collect(Collectors.toList()))
+                .recruitingList(recruitingDTOList)
                 .build();
     }
 
@@ -99,11 +133,12 @@ public class PostService {
         Post post = Post.builder()
                 .club(club)
                 .title(postCreateRequestDTO.getTitle())
-                .startTime(LocalDateTime.parse(postCreateRequestDTO.getStartTime()))
-                .endTime(LocalDateTime.parse(postCreateRequestDTO.getEndTime()))
+                .startTime(postCreateRequestDTO.getStartTime())
+                .endTime(postCreateRequestDTO.getEndTime())
                 .content(postCreateRequestDTO.getContent())
                 .recruitmentStatus(RecruitmentStatus.valueOf(postCreateRequestDTO.getRecruitmentStatus()))
                 .recruitmentCount(postCreateRequestDTO.getRecruitmentCount())
+                .recruitmentType(RecruitmentType.valueOf(postCreateRequestDTO.getRecruitmentType()))
                 .build();
 
         postRepository.save(post);
@@ -123,7 +158,6 @@ public class PostService {
                         .form(form)
                         .post(post)
                         .jobTitle(recruitingRequest.getJobTitle())
-                        .recruitmentType(RecruitmentType.valueOf(recruitingRequest.getRecruitmentType()))
                         .build();
 
                 recruitingRepository.save(recruiting);

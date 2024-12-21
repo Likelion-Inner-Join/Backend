@@ -1,5 +1,6 @@
 package com.likelion.innerjoin.post.model.entity;
 
+import com.likelion.innerjoin.common.entity.DataEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Recruiting {
+public class Recruiting extends DataEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recruiting_id")
@@ -30,10 +31,6 @@ public class Recruiting {
 
     @Column(name = "job_title")
     private String jobTitle;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "recruitment_type")
-    private RecruitmentType recruitmentType;
 
     @OneToMany(mappedBy = "recruiting", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Application> application;

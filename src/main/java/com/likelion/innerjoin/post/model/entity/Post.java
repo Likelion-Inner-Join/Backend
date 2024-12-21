@@ -42,10 +42,14 @@ public class Post extends DataEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "recruitment_status")
-    private RecruitmentStatus recruitmentStatus;
+    private RecruitmentStatus recruitmentStatus; //모집 상태 (예: 서류 평가 완료 등)
 
     @Column(name = "recruitment_count")
-    private Integer recruitmentCount;
+    private Integer recruitmentCount; //모집 인원
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recruitment_type")
+    private RecruitmentType recruitmentType; //모집 유형 (예: 서류만, 서류와 면접)
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<PostImage> imageList;

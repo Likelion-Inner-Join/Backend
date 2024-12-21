@@ -14,6 +14,6 @@ public class RecruitingRequestDTO {
 
     private String jobTitle;
 
-    private String recruitmentType;
+    //private String recruitmentType;
 
 }

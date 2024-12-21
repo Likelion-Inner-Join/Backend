@@ -1,4 +1,4 @@
-package com.likelion.innerjoin.post.model.dto;
+package com.likelion.innerjoin.post.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -11,10 +11,11 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
-public class PostResponseDTO {
+public class PostListResponseDTO {
 
     private Long postId;
     private Long clubId;
+    private String clubName;
     private String title;
     private String content;
 
@@ -27,8 +28,9 @@ public class PostResponseDTO {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endTime;
 
-    private String recruitmentStatus;
     private Integer recruitmentCount;
+    private String recruitmentStatus;
+    private String recruitmentType;
 
     private List<PostImageDTO> image;
 
@@ -39,4 +41,5 @@ public class PostResponseDTO {
         private Long imageId;
         private String imageUrl;
     }
+
 }
