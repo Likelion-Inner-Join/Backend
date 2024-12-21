@@ -1,10 +1,12 @@
 package com.likelion.innerjoin.post.service;
 
+import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.post.exception.PostNotFoundException;
 import com.likelion.innerjoin.post.exception.RecruitingNotFoundException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
-import com.likelion.innerjoin.post.model.dto.response.MeetingTimeDTO;
+import com.likelion.innerjoin.post.model.dto.response.MeetingTimeResponseDTO;
 import com.likelion.innerjoin.post.model.dto.response.MeetingTimeListResponseDTO;
+import com.likelion.innerjoin.post.model.entity.Application;
 import com.likelion.innerjoin.post.model.entity.MeetingTime;
 import com.likelion.innerjoin.post.model.entity.Recruiting;
 import com.likelion.innerjoin.post.model.entity.Post;
@@ -44,7 +46,6 @@ public class MeetingTimeService {
             throw new UnauthorizedException("홍보글의 club_id가 현재 유저의 club_id와 일치하지 않습니다.");
         }
 
-
         // 요청DTO를 MeetingTime 엔티티로 변환
         List<MeetingTime> meetingTimes = meetingTimeDtos.stream()
                 .map(dto -> {
@@ -60,6 +61,7 @@ public class MeetingTimeService {
         meetingTimeRepository.saveAll(meetingTimes);
     }
 
+
     Club checkClub(HttpSession session) {
         User user = sessionVerifier.verifySession(session);
         if (!(user instanceof Club club)) {
@@ -67,24 +69,41 @@ public class MeetingTimeService {
         }
         return club;
     }
-    public MeetingTimeListResponseDTO getMeetingTimesByRecruitingId(Long recruitingId) {
-        // Fetch the Recruiting entity (this will throw an exception if not found)
+
+
+    public CommonResponse<MeetingTimeListResponseDTO> getMeetingTimesByRecruitingId(Long recruitingId) {
+        // recruiting 찾기
         Recruiting recruiting = recruitingRepository.findById(recruitingId)
                 .orElseThrow(() -> new IllegalArgumentException("Recruiting not found with id: " + recruitingId));
 
-        // Fetch the associated MeetingTimes
+        // recruiting과 연관된 면접시간 리스트
         List<MeetingTime> meetingTimes = meetingTimeRepository.findByRecruiting(recruiting);
 
-        // Map the result to the response format
-        List<MeetingTimeDTO> meetingTimeDtos = meetingTimes.stream()
-                .map(meetingTime -> new MeetingTimeDTO(
-                        meetingTime.getId(),
-                        meetingTime.getAllowedNum(),
-                        meetingTime.getMeetingStartTime(),
-                        meetingTime.getMeetingEndTime()
-                ))
+        // DTO로 변환
+        List<MeetingTimeResponseDTO> meetingTimeDtos = meetingTimes.stream()
+                .map(meetingTime -> {
+                    // 예약된 사람 리스트
+                    List<Application> applications = meetingTime.getApplicationList();
+                    List<MeetingTimeResponseDTO.ApplicantDTO> applicantDtos = applications.stream()
+                            .map(application -> new MeetingTimeResponseDTO.ApplicantDTO(
+                                    application.getApplicant().getId(),
+                                    application.getApplicant().getName(),
+                                    application.getApplicant().getStudentNumber()
+                            ))
+                            .collect(Collectors.toList());
+
+                    return new MeetingTimeResponseDTO(
+                            meetingTime.getId(),
+                            meetingTime.getAllowedNum(),
+                            applications.size(), // 예약된 사람 수
+                            applicantDtos,
+                            meetingTime.getMeetingStartTime(),
+                            meetingTime.getMeetingEndTime()
+                    );
+                })
                 .collect(Collectors.toList());
 
-        return new MeetingTimeListResponseDTO(recruitingId, meetingTimeDtos);
+        MeetingTimeListResponseDTO responseDto = new MeetingTimeListResponseDTO(recruitingId, meetingTimeDtos);
+        return new CommonResponse<>(responseDto);
     }
 }
