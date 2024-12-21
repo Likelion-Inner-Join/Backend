@@ -43,9 +43,15 @@ public class PostService {
     private final ApplicationMapper applicationMapper;
 
 
-    // 모든 홍보글 조회
-    public List<PostListResponseDTO> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
+    // 홍보글 조회
+    public List<PostListResponseDTO> getAllPosts(String clubName) {
+        List<Post> posts;
+
+        if (clubName != null && !clubName.isEmpty()) {
+            posts = postRepository.findByClubName(clubName); // 동아리 이름으로 검색
+        } else {
+            posts = postRepository.findAll(); // 전체 조회
+        }
 
         if (posts.isEmpty()) {
             throw new PostNotFoundException();
@@ -55,6 +61,7 @@ public class PostService {
                 .map(this::toPostResponseDTO)
                 .collect(Collectors.toList());
     }
+
 
     // Post 엔티티를 PostResponseDTO로 변환
     private PostListResponseDTO toPostResponseDTO(Post post) {
