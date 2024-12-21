@@ -133,8 +133,7 @@ public class PostController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     public CommonResponse<MeetingTimeListResponseDTO> getMeetingTimes(@PathVariable Long recruiting_id) {
-        MeetingTimeListResponseDTO response = meetingTimeService.getMeetingTimesByRecruitingId(recruiting_id);
-        return new CommonResponse<>(response);
+        return meetingTimeService.getMeetingTimesByRecruitingId(recruiting_id);
     }
 
 }

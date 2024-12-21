@@ -9,5 +9,5 @@ import java.util.List;
 @AllArgsConstructor
 public class MeetingTimeListResponseDTO {
     private Long recruitingId;
-    private List<MeetingTimeDTO> meetingTimes;
+    private List<MeetingTimeResponseDTO> meetingTimes;
 }
