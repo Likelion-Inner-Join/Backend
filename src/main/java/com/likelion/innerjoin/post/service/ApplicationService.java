@@ -5,7 +5,7 @@ import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.post.exception.*;
 import com.likelion.innerjoin.post.model.dto.request.*;
 import com.likelion.innerjoin.post.model.dto.response.ApplicationDto;
-import com.likelion.innerjoin.post.model.dto.response.MeetingTimeDTO;
+import com.likelion.innerjoin.post.model.dto.response.MeetingTimeResponseDTO;
 import com.likelion.innerjoin.post.model.entity.*;
 import com.likelion.innerjoin.post.model.mapper.ApplicationMapper;
 import com.likelion.innerjoin.post.repository.*;
@@ -235,7 +235,7 @@ public class ApplicationService {
      * @return MeetingTimeDTO
      */
     @Transactional
-    public MeetingTimeDTO selectMeetingTime (MeetingTimeSelectionDto dto, HttpSession session){
+    public MeetingTimeResponseDTO selectMeetingTime (MeetingTimeSelectionDto dto, HttpSession session){
         Applicant applicant = checkApplicant(session);
         Application application = applicationRepository.findById(dto.getApplicationId())
                 .orElseThrow(()-> new ApplicationNotFoundException("지원 이력이 없습니다."));
@@ -255,14 +255,14 @@ public class ApplicationService {
         application.setMeetingTime(meetingTime);
         applicationRepository.save(application);
 
-        MeetingTimeDTO meetingTimeDTO = new MeetingTimeDTO(
+        return new MeetingTimeResponseDTO(
                 meetingTime.getId(),
                 meetingTime.getAllowedNum(),
+                meetingTime.getApplicationList().size() + 1,
+                null,
                 meetingTime.getMeetingStartTime(),
                 meetingTime.getMeetingEndTime()
         );
-
-        return meetingTimeDTO;
     }
 
     Applicant checkApplicant (HttpSession session) {
