@@ -213,9 +213,25 @@ public class PostService {
 
         postRepository.save(post);
 
-        // 이미지 처리 및 저장
+        // 기존 이미지 삭제
+        List<PostImage> existingImages = postImageRepository.findByPostId(postId);
+        for (PostImage image : existingImages) {
+            String imageUrl = image.getImageUrl();
+            String filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1); // URL에서 파일명 추출
+
+            try {
+                boolean deleted = blobService.deleteFile(filename); // Blob Storage에서 삭제
+                if (!deleted) {
+                    throw new ImageProcessingException("Blob Storage에서 이미지 삭제 실패: " + filename, null);
+                }
+                postImageRepository.delete(image); // DB에서 삭제
+            } catch (Exception e) {
+                throw new ImageProcessingException("DB에서 이미지 삭제 중 에러 발생: " + imageUrl, e);
+            }
+        }
+
+        // 새로운 이미지 저장
         if (images != null && !images.isEmpty()) {
-            postImageRepository.deleteByPost(post);  // 기존 이미지 삭제
             for (MultipartFile image : images) {
                 try {
                     String imageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
@@ -232,7 +248,6 @@ public class PostService {
 
         return new PostCreateResponseDTO(post.getId());
     }
-
 
     // 홍보글 삭제
     @Transactional
