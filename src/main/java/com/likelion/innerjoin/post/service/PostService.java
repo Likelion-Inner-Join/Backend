@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -188,6 +189,7 @@ public class PostService {
         return new PostCreateResponseDTO(post.getId());
     }
 
+
     // 홍보글 수정
     @Transactional
     public PostCreateResponseDTO updatePost(Long postId, PostModifyRequestDTO postModifyRequestDTO, List<MultipartFile> images, HttpSession session) {
@@ -231,6 +233,7 @@ public class PostService {
         return new PostCreateResponseDTO(post.getId());
     }
 
+
     // 홍보글 삭제
     @Transactional
     public void deletePost(Long postId, HttpSession session) {
@@ -242,8 +245,29 @@ public class PostService {
             throw new UnauthorizedException("삭제할 권한이 없습니다.");
         }
 
+        // 홍보글과 연관된 이미지 리스트 조회
+        List<PostImage> images = postImageRepository.findByPostId(postId);
+
+        // Blob Storage와 DB에서 이미지 삭제
+        for (PostImage image : images) {
+            String imageUrl = image.getImageUrl();
+            String filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1); // URL에서 파일명 추출
+
+            try {
+                boolean deleted = blobService.deleteFile(filename); // Blob Storage에서 삭제
+                if (!deleted) {
+                    throw new ImageProcessingException("Blob Storage에서 이미지 삭제 실패: " + filename, null);
+                }
+                postImageRepository.delete(image); // DB에서 삭제
+            } catch (Exception e) {
+                throw new ImageProcessingException("DB에서 이미지 삭제 중 에러 발생: " + imageUrl, e);
+            }
+        }
+
+        // 홍보글 삭제
         postRepository.delete(post);
     }
+
 
     Club checkClub(HttpSession session) {
         User user = sessionVerifier.verifySession(session);
@@ -252,6 +276,7 @@ public class PostService {
         }
         return club;
     }
+
 
     /**
      * 홍보글에 대한 모든 지원 조회
