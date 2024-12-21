@@ -21,6 +21,7 @@ public class ApplicationMapper {
         //recruiting
         applicationDto.setRecruitingId(recruiting.getId());
         applicationDto.setPositionName(recruiting.getJobTitle());
+        applicationDto.setRecruitmentType(recruiting.getPost().getRecruitmentType());
         applicationDto.setRecruitmentStatus(recruiting.getPost().getRecruitmentStatus());
 
         // applicationId
@@ -34,6 +35,8 @@ public class ApplicationMapper {
         // club
         applicationDto.setClubId(recruiting.getPost().getClub().getId());
         applicationDto.setClubName(recruiting.getPost().getClub().getName());
+        applicationDto.setStartTime(recruiting.getPost().getStartTime());
+        applicationDto.setEndTime(recruiting.getPost().getEndTime());
 
         // post
         applicationDto.setPostId(recruiting.getPost().getId());
