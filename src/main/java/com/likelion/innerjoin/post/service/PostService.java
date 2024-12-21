@@ -17,7 +17,6 @@ import com.likelion.innerjoin.post.repository.PostRepository;
 import com.likelion.innerjoin.post.repository.RecruitingRepository;
 import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
-import com.likelion.innerjoin.user.repository.ClubRepository;
 import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -25,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,7 +37,6 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
-    private final ClubRepository clubRepository;
     private final FormRepository formRepository;
     private final RecruitingRepository recruitingRepository;
     private final BlobService blobService;
@@ -45,9 +44,15 @@ public class PostService {
     private final ApplicationMapper applicationMapper;
 
 
-    // 모든 홍보글 조회
-    public List<PostListResponseDTO> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
+    // 홍보글 조회
+    public List<PostListResponseDTO> getAllPosts(String clubName) {
+        List<Post> posts;
+
+        if (clubName != null && !clubName.isEmpty()) {
+            posts = postRepository.findByClubNameContaining(clubName); // 동아리 이름으로 검색
+        } else {
+            posts = postRepository.findAll(); // 전체 조회
+        }
 
         if (posts.isEmpty()) {
             throw new PostNotFoundException();
@@ -57,6 +62,7 @@ public class PostService {
                 .map(this::toPostResponseDTO)
                 .collect(Collectors.toList());
     }
+
 
     // Post 엔티티를 PostResponseDTO로 변환
     private PostListResponseDTO toPostResponseDTO(Post post) {
@@ -183,6 +189,7 @@ public class PostService {
         return new PostCreateResponseDTO(post.getId());
     }
 
+
     // 홍보글 수정
     @Transactional
     public PostCreateResponseDTO updatePost(Long postId, PostModifyRequestDTO postModifyRequestDTO, List<MultipartFile> images, HttpSession session) {
@@ -206,9 +213,25 @@ public class PostService {
 
         postRepository.save(post);
 
-        // 이미지 처리 및 저장
+        // 기존 이미지 삭제
+        List<PostImage> existingImages = postImageRepository.findByPostId(postId);
+        for (PostImage image : existingImages) {
+            String imageUrl = image.getImageUrl();
+            String filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1); // URL에서 파일명 추출
+
+            try {
+                boolean deleted = blobService.deleteFile(filename); // Blob Storage에서 삭제
+                if (!deleted) {
+                    throw new ImageProcessingException("Blob Storage에서 이미지 삭제 실패: " + filename, null);
+                }
+                postImageRepository.delete(image); // DB에서 삭제
+            } catch (Exception e) {
+                throw new ImageProcessingException("DB에서 이미지 삭제 중 에러 발생: " + imageUrl, e);
+            }
+        }
+
+        // 새로운 이미지 저장
         if (images != null && !images.isEmpty()) {
-            postImageRepository.deleteByPost(post);  // 기존 이미지 삭제
             for (MultipartFile image : images) {
                 try {
                     String imageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
@@ -237,8 +260,29 @@ public class PostService {
             throw new UnauthorizedException("삭제할 권한이 없습니다.");
         }
 
+        // 홍보글과 연관된 이미지 리스트 조회
+        List<PostImage> images = postImageRepository.findByPostId(postId);
+
+        // Blob Storage와 DB에서 이미지 삭제
+        for (PostImage image : images) {
+            String imageUrl = image.getImageUrl();
+            String filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1); // URL에서 파일명 추출
+
+            try {
+                boolean deleted = blobService.deleteFile(filename); // Blob Storage에서 삭제
+                if (!deleted) {
+                    throw new ImageProcessingException("Blob Storage에서 이미지 삭제 실패: " + filename, null);
+                }
+                postImageRepository.delete(image); // DB에서 삭제
+            } catch (Exception e) {
+                throw new ImageProcessingException("DB에서 이미지 삭제 중 에러 발생: " + imageUrl, e);
+            }
+        }
+
+        // 홍보글 삭제
         postRepository.delete(post);
     }
+
 
     Club checkClub(HttpSession session) {
         User user = sessionVerifier.verifySession(session);
@@ -247,6 +291,7 @@ public class PostService {
         }
         return club;
     }
+
 
     /**
      * 홍보글에 대한 모든 지원 조회

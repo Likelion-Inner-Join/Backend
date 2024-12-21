@@ -23,7 +23,8 @@ public enum ErrorCode {
     EMAIL_FORMAT_INVALID(false, HttpStatus.BAD_REQUEST.value(), "이메일 형식이 올바르지 않습니다."),
     INVALID_UNIV_NAME(false, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 학교 이름입니다."),
     MISMATCHED_EMAIL_DOMAIN(false, HttpStatus.BAD_REQUEST.value(), "작성한 학교의 이메일 도메인 주소가 아닙니다."),
-
+    DUPLICATE_LOGIN_ID(false, HttpStatus.BAD_REQUEST.value(), "이미 존재하는 아이디입니다."),
+    DUPLICATE_EMAIL(false,HttpStatus.BAD_REQUEST.value(), "이미 존재하는 이메일입니다."),
     //error
     UNIV_CERT_API_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "학교 인증 API 호출 중 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR(false,HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부에서 문제가 발생했습니다."),
@@ -38,8 +39,8 @@ public enum ErrorCode {
     DUPLICATE_LOGIN_ID(false, HttpStatus.BAD_REQUEST.value(), "이미 존재하는 아이디입니다."),
     ALREADY_APPLIED(false, HttpStatus.BAD_REQUEST.value(), "이미 지원했습니다."),
     MEETING_TIME_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "면접 시간을 찾을 수 없습니다."),
-    ALLOWED_NUM_EXCEEDED(false, HttpStatus.BAD_REQUEST.value(), "면접 허용 인원을 초과했습니다.");
-
+    ALLOWED_NUM_EXCEEDED(false, HttpStatus.BAD_REQUEST.value(), "면접 허용 인원을 초과했습니다."),
+    ALREADY_APPLIED(false, HttpStatus.BAD_REQUEST.value(), "이미 지원했습니다.");
 
 
     private final Boolean isSuccess;
