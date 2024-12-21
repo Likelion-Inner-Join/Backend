@@ -55,9 +55,17 @@ public class ApplicationService {
         application.setApplicant(applicant);
         application.setRecruiting(recruiting);
 
-        // TODO: recruiting type에 따라서 결과를 미리 넣어놓기 (response도 있는지 없는지에 따라 처리해줘야함)
-        application.setFormResult(ResultType.PENDING);
-        application.setMeetingResult(ResultType.PENDING);
+        Post post = recruiting.getPost();
+        if(post.getRecruitmentType() == RecruitmentType.FORM_AND_MEETING){
+            application.setFormResult(ResultType.PENDING);
+            application.setMeetingResult(ResultType.PENDING);
+        }else if(post.getRecruitmentType() == RecruitmentType.FORM_ONLY){
+            application.setFormResult(ResultType.PENDING);
+            application.setMeetingResult(ResultType.PASS);
+        }else if(post.getRecruitmentType() == RecruitmentType.MEETING_ONLY){
+            application.setFormResult(ResultType.PASS);
+            application.setMeetingResult(ResultType.PENDING);
+        }
 
         application.setResponseList(new ArrayList<>());
         for(AnswerRequestDto answer : applicationRequestDto.getAnswers()) {
