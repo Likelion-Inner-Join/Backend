@@ -33,4 +33,13 @@ public class BlobService {
         client.upload(content, length);
         return client.getBlobUrl();  // URL 반환
     }
+
+    public boolean deleteFile(String filename) {
+        BlobClient client = containerClient().getBlobClient(filename);
+        if (client.exists()) {
+            client.delete();
+            return true;
+        }
+        return false;
+    }
 }
