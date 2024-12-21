@@ -1,5 +1,6 @@
 package com.likelion.innerjoin.user.service;
 
+import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.common.service.BlobService;
 import com.likelion.innerjoin.post.exception.ImageProcessingException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
@@ -105,31 +106,31 @@ public class ClubService {
                 .school(club.getSchool())
                 .email(club.getEmail())
                 .imageUrl(club.getImageUrl())
-                .categoryId(club.getCategoryList())
+                .categoryId(club.getCategory())
                 .build();
     }
 
     private final BlobService blobService;
 
-    public void signupClub(ClubSignUpRequestDto requestDto, MultipartFile image) {
+    public void signupClub(ClubSignUpRequestDto requestDto) {
         // 아이디 중복 체크
         if (clubRepository.findByLoginId(requestDto.getLoginId()).isPresent()) {
-            throw new SignUpIDException("이미 존재하는 아이디입니다.");
+            throw new SignUpIDException(ErrorCode.DUPLICATE_LOGIN_ID.getMessage());
         }
         // 이메일 중복 체크
         if (clubRepository.findByEmail(requestDto.getEmail()).isPresent()) {
-            throw new EmailValidationException("이미 존재하는 이메일입니다.");
+            throw new EmailValidationException(ErrorCode.DUPLICATE_EMAIL.getMessage());
         }
 
-        // 이미지 처리
-        String imageUrl = null;
-        if (image != null) {
-            try {
-                imageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
-            } catch (IOException e) {
-                throw new RuntimeException("이미지 업로드 중 오류가 발생했습니다: " + e.getMessage());
-            }
-        }
+//        // 이미지 처리
+//        String imageUrl = null;
+//        if (image != null) {
+//            try {
+//                imageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
+//            } catch (IOException e) {
+//                throw new RuntimeException("이미지 업로드 중 오류가 발생했습니다: " + e.getMessage());
+//            }
+//        }
 
         // Club 엔티티 생성 및 저장
         Club club = Club.builder()
@@ -138,8 +139,8 @@ public class ClubService {
                 .password(requestDto.getPassword())
                 .email(requestDto.getEmail())
                 .school(requestDto.getSchool())
-                .categoryList(requestDto.getCategory())
-                .imageUrl(imageUrl)
+                .category(requestDto.getCategory())
+                //.imageUrl(imageUrl)
                 .build();
 
         clubRepository.save(club);
