@@ -27,11 +27,11 @@ public class MeetingTime extends DataEntity {
     @Column(name = "allowed_num")
     private int allowedNum;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "meeting_start_time")
     private LocalDateTime meetingStartTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "meeting_end_time")
     private LocalDateTime meetingEndTime;
 
