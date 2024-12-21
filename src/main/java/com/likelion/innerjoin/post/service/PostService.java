@@ -48,7 +48,7 @@ public class PostService {
         List<Post> posts;
 
         if (clubName != null && !clubName.isEmpty()) {
-            posts = postRepository.findByClubName(clubName); // 동아리 이름으로 검색
+            posts = postRepository.findByClubNameContaining(clubName); // 동아리 이름으로 검색
         } else {
             posts = postRepository.findAll(); // 전체 조회
         }
