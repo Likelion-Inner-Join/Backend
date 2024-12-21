@@ -17,7 +17,6 @@ import com.likelion.innerjoin.post.repository.PostRepository;
 import com.likelion.innerjoin.post.repository.RecruitingRepository;
 import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
-import com.likelion.innerjoin.user.repository.ClubRepository;
 import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -37,7 +36,6 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
-    private final ClubRepository clubRepository;
     private final FormRepository formRepository;
     private final RecruitingRepository recruitingRepository;
     private final BlobService blobService;
