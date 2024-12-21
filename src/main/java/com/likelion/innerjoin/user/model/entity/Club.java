@@ -39,8 +39,9 @@ public class Club extends DataEntity implements User {
     @Column(name = "login_id", unique = true, nullable = false)
     private String loginId;
 
-    // @Column(name = "cate_list")
-    private Long category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private ClubCategory category;
 
     @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Post> postList;

@@ -11,6 +11,7 @@ public class ClubResponseDto {
     private String name;
     private String school;
     private Long categoryId;
+    private String categoryName;
     private String email;
     private String imageUrl;
 }
