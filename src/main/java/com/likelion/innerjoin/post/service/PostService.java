@@ -101,8 +101,6 @@ public class PostService {
 
 
 
-
-
     private int calculateDDay(LocalDateTime endTime) {
         LocalDateTime now = LocalDateTime.now();
 
@@ -345,6 +343,24 @@ public class PostService {
     }
 
 
+    //홍보글의 모집상태 업데이트(ex. 서류평가됨, 인터뷰됨)
+    @Transactional
+    public void updateRecruitmentStatus(Long postId, RecruitmentStatus status, HttpSession session) {
+        // Post 엔티티 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
+
+        // 유저의 Club과 게시글의 Club이 일치하는지 확인
+        if (!post.getClub().getId().equals(checkClub(session).getId())) {
+            throw new UnauthorizedException("홍보글 상태를 업데이트할 권한이 없습니다.");
+        }
+
+        // RecruitmentStatus 업데이트
+        post.setRecruitmentStatus(status);
+        postRepository.save(post); // 변경사항 저장
+    }
+
+
     Club checkClub(HttpSession session) {
         User user = sessionVerifier.verifySession(session);
         if (!(user instanceof Club club)) {
@@ -352,7 +368,6 @@ public class PostService {
         }
         return club;
     }
-
 
     /**
      * 홍보글에 대한 모든 지원 조회
