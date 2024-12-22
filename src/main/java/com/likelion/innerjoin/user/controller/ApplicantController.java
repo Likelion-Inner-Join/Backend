@@ -34,7 +34,7 @@ public class ApplicantController {
     }
 
     // 지원자 정보 조회
-    @Operation(summary = "동아리 정보 조회 API", description = "동아리 정보를 조회.")
+    @Operation(summary = "지원자 정보 조회 API", description = "지원자 정보를 조회.")
     @GetMapping("/{applicantId}")
     public CommonResponse<ApplicantResponseDto> getApplicantInfo(@PathVariable Long applicantId, HttpSession session) {
         ApplicantResponseDto applicantResponse = applicantService.getApplicantInfo(applicantId, session);
