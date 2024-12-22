@@ -4,8 +4,10 @@ import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.post.exception.PostNotFoundException;
 import com.likelion.innerjoin.post.model.dto.request.MeetingTimeRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostModifyRequestDTO;
+import com.likelion.innerjoin.post.model.dto.request.RecruitmentStatusUpdateRequestDTO;
 import com.likelion.innerjoin.post.model.dto.response.*;
 import com.likelion.innerjoin.post.model.dto.request.PostCreateRequestDTO;
+import com.likelion.innerjoin.post.model.entity.RecruitmentStatus;
 import com.likelion.innerjoin.post.service.MeetingTimeService;
 import com.likelion.innerjoin.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -100,6 +102,22 @@ public class PostController {
     public CommonResponse<String> deletePost(@PathVariable Long post_id, HttpSession session) {
         postService.deletePost(post_id, session);
         return new CommonResponse<>("Post deleted successfully.");
+    }
+
+    @PatchMapping("/{postId}")
+    @Operation(summary = "홍보글 모집 상태 업데이트 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "모집 상태 업데이트 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @ApiResponse(responseCode = "404", description = "해당 ID의 게시글을 찾을 수 없습니다")
+    })
+    public CommonResponse<String> updateRecruitmentStatus(
+            @PathVariable Long postId,
+            @RequestBody RecruitmentStatusUpdateRequestDTO request,
+            HttpSession session
+    ) {
+        postService.updateRecruitmentStatus(postId, request.getRecruitmentStatus(), session);
+        return new CommonResponse<>("Recruitment status updated successfully");
     }
 
 

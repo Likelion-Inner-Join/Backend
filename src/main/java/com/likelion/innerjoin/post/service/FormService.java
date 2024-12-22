@@ -74,9 +74,9 @@ public class FormService {
      */
     public FormResponseDto getForm(HttpSession session, Long formId) {
         Form form = formRepository.findById(formId).orElseThrow(() -> new FormNotFoundException("id: " + formId + " 지원폼이 존재하지 않습니다."));
-        if (!form.getClub().equals(checkClub(session))) {
-            throw new UnauthorizedException("권한이 없습니다.");
-        }
+//        if (!form.getClub().equals(checkClub(session))) {
+//            throw new UnauthorizedException("권한이 없습니다.");
+//        }
         return formMapper.toFormResponseDto(form);
     }
 
