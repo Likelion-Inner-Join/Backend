@@ -18,6 +18,7 @@ import com.likelion.innerjoin.post.repository.RecruitingRepository;
 import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.util.SessionVerifier;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -46,24 +47,51 @@ public class PostService {
     private final ApplicationMapper applicationMapper;
 
 
-    // 홍보글 리스트 조회
-    public List<PostListResponseDTO> getAllPosts(String clubName) {
+    public List<PostListResponseDTO> getAllPosts(String clubName, Long categoryId, String recruitmentType) {
         List<Post> posts;
 
-        if (clubName != null && !clubName.isEmpty()) {
-            posts = postRepository.findByClubNameContaining(clubName); // 동아리 이름으로 검색
-        } else {
+        if ((clubName == null || clubName.isEmpty()) && categoryId == null && (recruitmentType == null || recruitmentType.isEmpty())) {
             posts = postRepository.findAll(); // 전체 조회
+        } else {
+            posts = postRepository.findAll((root, query, criteriaBuilder) -> {
+                List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+
+                // 동아리 이름 필터
+                if (clubName != null && !clubName.isEmpty()) {
+                    predicates.add(criteriaBuilder.like(root.get("club").get("name"), "%" + clubName + "%"));
+                }
+
+                // 카테고리 ID 필터
+                if (categoryId != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("club").get("category").get("id"), categoryId));
+                }
+
+                // 모집 유형 필터
+                if (recruitmentType != null && !recruitmentType.isEmpty()) {
+                    try {
+                        RecruitmentType type = RecruitmentType.valueOf(recruitmentType);
+                        predicates.add(criteriaBuilder.equal(root.get("recruitmentType"), type));
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidRecruitmentTypeException("Invalid recruitment type: " + recruitmentType);
+                    }
+                }
+
+                return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+            });
         }
 
-        if (posts.isEmpty()) {
-            throw new PostNotFoundException();
+        // 검색 결과가 없을 때 예외 처리
+        if (posts == null || posts.isEmpty()) {
+            throw new PostNotFoundException("No posts found for the given criteria.");
         }
 
         return posts.stream()
                 .map(this::toPostResponseDTO)
                 .collect(Collectors.toList());
     }
+
+
+
 
     private int calculateDDay(LocalDateTime endTime) {
         LocalDateTime now = LocalDateTime.now();

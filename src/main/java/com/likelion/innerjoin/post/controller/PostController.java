@@ -1,6 +1,7 @@
 package com.likelion.innerjoin.post.controller;
 
 import com.likelion.innerjoin.common.response.CommonResponse;
+import com.likelion.innerjoin.post.exception.PostNotFoundException;
 import com.likelion.innerjoin.post.model.dto.request.MeetingTimeRequestDTO;
 import com.likelion.innerjoin.post.model.dto.request.PostModifyRequestDTO;
 import com.likelion.innerjoin.post.model.dto.response.*;
@@ -32,9 +33,12 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "홍보글 리스트 조회 성공"),
             @ApiResponse(responseCode = "404", description = "홍보글을 찾을 수 없습니다")
     })
-    public CommonResponse<List<PostListResponseDTO>> getPosts(@RequestParam(value = "clubName", required = false) String clubName) {
-        List<PostListResponseDTO> response = postService.getAllPosts(clubName);
-        return new CommonResponse<>(response);
+    public CommonResponse<List<PostListResponseDTO>> getPosts(
+            @RequestParam(value = "clubName", required = false) String clubName,
+            @RequestParam(value = "categoryId", required = false) Long categoryId,
+            @RequestParam(value = "recruitmentType", required = false) String recruitmentType
+    ) {
+        return new CommonResponse<>(postService.getAllPosts(clubName, categoryId, recruitmentType));
     }
 
 
