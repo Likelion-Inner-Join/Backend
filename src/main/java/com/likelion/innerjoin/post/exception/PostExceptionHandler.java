@@ -13,7 +13,7 @@ public class PostExceptionHandler {
     // PostNotFoundException 처리
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<CommonResponse<Object>> handlePostNotFoundException(PostNotFoundException ex) {
-        CommonResponse<Object> response = new CommonResponse<>(ex.getErrorCode());
+        CommonResponse<Object> response = new CommonResponse<>(ErrorCode.POST_NOT_FOUND, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
