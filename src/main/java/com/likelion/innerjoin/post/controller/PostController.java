@@ -36,9 +36,10 @@ public class PostController {
     public CommonResponse<List<PostListResponseDTO>> getPosts(
             @RequestParam(value = "clubName", required = false) String clubName,
             @RequestParam(value = "categoryId", required = false) Long categoryId,
-            @RequestParam(value = "recruitmentType", required = false) String recruitmentType
+            @RequestParam(value = "recruitmentType", required = false) String recruitmentType,
+            @RequestParam(value = "isRecruiting", required = false) Boolean isRecruiting
     ) {
-        return new CommonResponse<>(postService.getAllPosts(clubName, categoryId, recruitmentType));
+        return new CommonResponse<>(postService.getAllPosts(clubName, categoryId, recruitmentType, isRecruiting));
     }
 
 

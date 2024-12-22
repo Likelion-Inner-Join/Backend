@@ -47,10 +47,10 @@ public class PostService {
     private final ApplicationMapper applicationMapper;
 
 
-    public List<PostListResponseDTO> getAllPosts(String clubName, Long categoryId, String recruitmentType) {
+    public List<PostListResponseDTO> getAllPosts(String clubName, Long categoryId, String recruitmentType, Boolean isRecruiting) {
         List<Post> posts;
 
-        if ((clubName == null || clubName.isEmpty()) && categoryId == null && (recruitmentType == null || recruitmentType.isEmpty())) {
+        if ((clubName == null || clubName.isEmpty()) && categoryId == null && (recruitmentType == null || recruitmentType.isEmpty()) && isRecruiting == null) {
             posts = postRepository.findAll(); // 전체 조회
         } else {
             posts = postRepository.findAll((root, query, criteriaBuilder) -> {
@@ -76,6 +76,15 @@ public class PostService {
                     }
                 }
 
+                // endTime 필터 (isRecruiting이 true: 지원 가능한 게시물, false: 마감된 게시물)
+                if (isRecruiting != null) {
+                    if (isRecruiting) {
+                        predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("endTime"), criteriaBuilder.currentTimestamp()));
+                    } else {
+                        predicates.add(criteriaBuilder.lessThan(root.get("endTime"), criteriaBuilder.currentTimestamp()));
+                    }
+                }
+
                 return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
             });
         }
@@ -89,6 +98,7 @@ public class PostService {
                 .map(this::toPostResponseDTO)
                 .collect(Collectors.toList());
     }
+
 
 
 
