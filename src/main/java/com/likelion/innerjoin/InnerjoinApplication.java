@@ -24,7 +24,7 @@ public class InnerjoinApplication {
 						.allowedOrigins("http://localhost:3000",
 								"http://localhost:3001",
 								"https://innerjoin.vercel.app")  // 허용할 도메인
-						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // 허용할 HTTP 메소드
+						.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")  // 허용할 HTTP 메소드
 						.allowedHeaders("*") // 허용할 헤더
 						.allowCredentials(true);
 			}
