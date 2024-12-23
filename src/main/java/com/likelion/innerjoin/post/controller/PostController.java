@@ -148,7 +148,7 @@ public class PostController {
 
 
     @PostMapping("/interview-times")
-    @Operation(summary = "특정 recruiting의 면접 가능 시간 생성")
+    @Operation(summary = "특정 recruiting의 면접 가능 시간 생성, 예약 가능 시간 설정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "면접 가능 시간 생성 성공"),
             @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다"),
@@ -156,7 +156,7 @@ public class PostController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     public CommonResponse<String> createInterviewTimes(@RequestBody MeetingTimeRequestDTO request, HttpSession session) {
-        meetingTimeService.createMeetingTimes(request.getRecruitingId(), request.getMeetingTimes(), session);
+        meetingTimeService.createMeetingTimes(request.getRecruitingId(), request, session);
         return new CommonResponse<>("면접 가능 시간이 성공적으로 생성되었습니다.");
     }
 

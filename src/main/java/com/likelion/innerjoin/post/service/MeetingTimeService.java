@@ -18,6 +18,7 @@ import com.likelion.innerjoin.user.model.entity.Club;
 import com.likelion.innerjoin.user.model.entity.User;
 import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,15 +35,17 @@ public class MeetingTimeService {
     private final SessionVerifier sessionVerifier;
     
     //면접시간 리스트 생성
-    public void createMeetingTimes(Long recruitingId, List<MeetingTimeRequestDTO.MeetingTimeDto> meetingTimeDtos, HttpSession session) {
+    @Transactional
+    public void createMeetingTimes(Long recruitingId, MeetingTimeRequestDTO request, HttpSession session) {
 
+        // Recruiting 조회
         Recruiting recruiting = recruitingRepository.findById(recruitingId)
                 .orElseThrow(() -> new RecruitingNotFoundException("Recruiting not found with id: " + recruitingId));
 
+        // Post 조회 및 Club 검증
         Post post = postRepository.findById(recruiting.getPost().getId())
                 .orElseThrow(() -> new PostNotFoundException("Post not found"));
 
-        // post의 club_id가 유저의 club_id와 일치하는지 확인
         if (!post.getClub().getId().equals(checkClub(session).getId())) {
             throw new UnauthorizedException("홍보글의 club_id가 현재 유저의 club_id와 일치하지 않습니다.");
         }
@@ -53,8 +56,8 @@ public class MeetingTimeService {
             meetingTimeRepository.deleteAll(existingMeetingTimes);
         }
 
-        // 요청DTO를 MeetingTime 엔티티로 변환
-        List<MeetingTime> meetingTimes = meetingTimeDtos.stream()
+        // 새로운 MeetingTime 엔티티 생성 및 저장
+        List<MeetingTime> meetingTimes = request.getMeetingTimes().stream()
                 .map(dto -> {
                     MeetingTime meetingTime = new MeetingTime();
                     meetingTime.setAllowedNum(dto.getAllowedNum());
@@ -66,7 +69,13 @@ public class MeetingTimeService {
                 .collect(Collectors.toList());
 
         meetingTimeRepository.saveAll(meetingTimes);
+
+        // Recruiting 예약 시작/종료 시간 설정
+        recruiting.setReservationStartTime(request.getReservationStartTime());
+        recruiting.setReservationEndTime(request.getReservationEndTime());
+        recruitingRepository.save(recruiting); // 변경 사항 저장
     }
+
 
 
     Club checkClub(HttpSession session) {
