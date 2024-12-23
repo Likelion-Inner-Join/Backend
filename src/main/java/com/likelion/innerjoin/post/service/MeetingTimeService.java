@@ -6,10 +6,7 @@ import com.likelion.innerjoin.post.exception.RecruitingNotFoundException;
 import com.likelion.innerjoin.post.exception.UnauthorizedException;
 import com.likelion.innerjoin.post.model.dto.response.MeetingTimeResponseDTO;
 import com.likelion.innerjoin.post.model.dto.response.MeetingTimeListResponseDTO;
-import com.likelion.innerjoin.post.model.entity.Application;
-import com.likelion.innerjoin.post.model.entity.MeetingTime;
-import com.likelion.innerjoin.post.model.entity.Recruiting;
-import com.likelion.innerjoin.post.model.entity.Post;
+import com.likelion.innerjoin.post.model.entity.*;
 import com.likelion.innerjoin.post.model.dto.request.MeetingTimeRequestDTO;
 import com.likelion.innerjoin.post.repository.MeetingTimeRepository;
 import com.likelion.innerjoin.post.repository.PostRepository;
@@ -48,6 +45,11 @@ public class MeetingTimeService {
 
         if (!post.getClub().getId().equals(checkClub(session).getId())) {
             throw new UnauthorizedException("홍보글의 club_id가 현재 유저의 club_id와 일치하지 않습니다.");
+        }
+
+        // 홍보글의 RecruitmentStatus 확인 (면접 시간이 이미 확정된 경우)
+        if (post.getRecruitmentStatus() == RecruitmentStatus.TIME_SET) {
+            throw new IllegalStateException("면접 시간이 이미 공개되어서(TIME_SET) 다시 설정할 수 없습니다.");
         }
 
         // 기존 MeetingTime 삭제
