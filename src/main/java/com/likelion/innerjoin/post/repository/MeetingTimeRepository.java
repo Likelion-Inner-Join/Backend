@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface MeetingTimeRepository extends JpaRepository<MeetingTime, Long> {
     List<MeetingTime> findByRecruiting(Recruiting recruiting);
+    List<MeetingTime> findByRecruitingId(Long recruitingId);
 }

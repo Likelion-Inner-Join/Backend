@@ -47,6 +47,12 @@ public class MeetingTimeService {
             throw new UnauthorizedException("홍보글의 club_id가 현재 유저의 club_id와 일치하지 않습니다.");
         }
 
+        // 기존 MeetingTime 삭제
+        List<MeetingTime> existingMeetingTimes = meetingTimeRepository.findByRecruitingId(recruitingId);
+        if (!existingMeetingTimes.isEmpty()) {
+            meetingTimeRepository.deleteAll(existingMeetingTimes);
+        }
+
         // 요청DTO를 MeetingTime 엔티티로 변환
         List<MeetingTime> meetingTimes = meetingTimeDtos.stream()
                 .map(dto -> {
