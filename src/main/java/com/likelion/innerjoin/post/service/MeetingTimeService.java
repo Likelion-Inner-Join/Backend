@@ -88,7 +88,7 @@ public class MeetingTimeService {
         return club;
     }
 
-    //면접시간 정보 조회
+    // 특정 recruiting의 면접시간 정보 조회
     public CommonResponse<MeetingTimeListResponseDTO> getMeetingTimesByRecruitingId(Long recruitingId) {
         // recruiting 찾기
         Recruiting recruiting = recruitingRepository.findById(recruitingId)
@@ -121,7 +121,15 @@ public class MeetingTimeService {
                 })
                 .collect(Collectors.toList());
 
-        MeetingTimeListResponseDTO responseDto = new MeetingTimeListResponseDTO(recruitingId, meetingTimeDtos);
+        MeetingTimeListResponseDTO responseDto = new MeetingTimeListResponseDTO(
+                recruiting.getId(),
+                recruiting.getJobTitle(),
+                recruiting.getReservationStartTime(),
+                recruiting.getReservationEndTime(),
+                meetingTimeDtos
+        );
+
         return new CommonResponse<>(responseDto);
     }
+
 }

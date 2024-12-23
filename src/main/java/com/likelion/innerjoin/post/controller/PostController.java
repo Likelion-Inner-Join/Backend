@@ -162,7 +162,7 @@ public class PostController {
 
 
     @GetMapping("/interview-times/{recruiting_id}")
-    @Operation(summary = "특정 recruiting의 면접 가능 시간 목록 조회")
+    @Operation(summary = "특정 recruiting의 정보 조회 (직무명, 면접가능시간, 예약시간 등)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "면접 가능 시간 목록 조회 성공"),
             @ApiResponse(responseCode = "404", description = "해당 recruiting id를 찾을 수 없음"),
