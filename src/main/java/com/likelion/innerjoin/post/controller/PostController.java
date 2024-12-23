@@ -45,6 +45,19 @@ public class PostController {
     }
 
 
+    @GetMapping("/my-posts")
+    @Operation(summary = "현재 로그인한 Club의 홍보글 조회 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "홍보글 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "세션값이 잘못되었습니다."),
+            @ApiResponse(responseCode = "404", description = "현재 Club에 해당하는 홍보글이 없습니다.")
+    })
+    public CommonResponse<List<PostListResponseDTO>> getMyPosts(HttpSession session) {
+        List<PostListResponseDTO> myPosts = postService.getMyPosts(session);
+        return new CommonResponse<>(myPosts);
+    }
+
+
     @GetMapping("/{post_id}")
     @Operation(summary = "특정 홍보글 디테일 조회 api")
     @ApiResponses(value = {

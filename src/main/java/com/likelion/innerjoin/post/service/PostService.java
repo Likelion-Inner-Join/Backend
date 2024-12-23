@@ -100,7 +100,6 @@ public class PostService {
     }
 
 
-
     private int calculateDDay(LocalDateTime endTime) {
         LocalDateTime now = LocalDateTime.now();
 
@@ -139,6 +138,26 @@ public class PostService {
                 .categoryName(post.getClub().getCategory().getCategoryName()) // Category Name 추가
                 .image(imageDTOs)
                 .build();
+    }
+
+
+    @Transactional
+    public List<PostListResponseDTO> getMyPosts(HttpSession session) {
+        // 현재 로그인한 유저가 Club인지 확인
+        Club club = checkClub(session);
+
+        // Club ID로 홍보글 필터링
+        List<Post> posts = postRepository.findByClubId(club.getId());
+
+        // 검색 결과가 없을 경우 예외 처리
+        if (posts.isEmpty()) {
+            throw new PostNotFoundException("현재 Club에 해당하는 홍보글이 없습니다.");
+        }
+
+        // Post 엔티티를 DTO로 변환
+        return posts.stream()
+                .map(this::toPostResponseDTO)
+                .collect(Collectors.toList());
     }
 
 
