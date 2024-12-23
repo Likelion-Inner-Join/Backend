@@ -14,6 +14,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ApplicationRequestDto {
     private Long recruitingId;
-    private Long applicantId;
     private List<AnswerRequestDto> answers;
 }
