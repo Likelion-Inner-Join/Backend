@@ -157,7 +157,7 @@ public class PostController {
     })
     public CommonResponse<String> createInterviewTimes(@RequestBody MeetingTimeRequestDTO request, HttpSession session) {
         meetingTimeService.createMeetingTimes(request.getRecruitingId(), request, session);
-        return new CommonResponse<>("면접 가능 시간이 성공적으로 생성되었습니다.");
+        return new CommonResponse<>("면접 가능 시간 리스트가 설정되었습니다. 예약 가능 시간이 설정되었습니다.");
     }
 
 

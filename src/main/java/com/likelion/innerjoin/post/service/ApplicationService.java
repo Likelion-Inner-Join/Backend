@@ -20,6 +20,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -252,6 +253,13 @@ public class ApplicationService {
             throw new AllowedNumExceededException("면접 허용 인원을 초과했습니다.");
         }
 
+        // 예약 종료 시간 확인
+        LocalDateTime reservationEndTime = meetingTime.getRecruiting().getReservationEndTime();
+        if (reservationEndTime != null && LocalDateTime.now().isAfter(reservationEndTime)) {
+            throw new IllegalStateException("면접 예약이 종료되었습니다.");
+        }
+
+        //면접 시간 설정
         application.setMeetingTime(meetingTime);
         applicationRepository.save(application);
 
