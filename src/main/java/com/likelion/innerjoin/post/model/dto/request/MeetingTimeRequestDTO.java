@@ -9,6 +9,8 @@ import java.util.List;
 public class MeetingTimeRequestDTO {
     private Long recruitingId;
     private List<MeetingTimeDto> meetingTimes;
+    private LocalDateTime reservationStartTime;
+    private LocalDateTime reservationEndTime;
 
     @Data
     public static class MeetingTimeDto {
