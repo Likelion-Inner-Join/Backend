@@ -3,6 +3,7 @@ package com.likelion.innerjoin.user.controller;
 import com.likelion.innerjoin.common.exception.ErrorCode;
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.user.model.dto.request.ClubSignUpRequestDto;
+import com.likelion.innerjoin.user.model.dto.request.ClubUpdateRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubCategoryResponseDto;
 import com.likelion.innerjoin.user.model.dto.request.EmailRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubResponseDto;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -54,6 +56,16 @@ public class ClubController {
         clubService.signupClub(clubSignUpRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new CommonResponse<>(ErrorCode.CREATED, "회원가입이 완료되었습니다."));
+    }
+
+    @Operation(summary = "동아리 정보 수정 API", description = "동아리 정보를 수정.")
+    @PutMapping("/{clubId}")
+    public ResponseEntity<CommonResponse<String>> updateClubInfo(@PathVariable Long clubId,
+                                                                 @RequestPart("data") ClubUpdateRequestDto updateRequestDto,
+                                                                 @RequestPart(value = "image", required = false) MultipartFile image,
+                                                                 HttpSession session) {
+        clubService.updateClubInfo(clubId, updateRequestDto, image, session);
+        return ResponseEntity.ok(new CommonResponse<>("동아리 정보가 수정되었습니다."));
     }
 
 }
