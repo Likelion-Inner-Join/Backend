@@ -121,6 +121,7 @@ public class ApplicantService {
         //applicant.setSchool(updateRequestDto.getSchool());
         applicant.setMajor(updateRequestDto.getMajor());
         applicant.setPhoneNum(updateRequestDto.getPhoneNum());
+        applicant.setPassword(updateRequestDto.getPassword());
         applicantRepository.save(applicant);
     }
 }
