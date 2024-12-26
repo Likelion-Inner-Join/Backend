@@ -22,6 +22,4 @@ public class PostModifyRequestDTO {
 
     private Integer recruitmentCount;  // 수정된 모집 인원 수
 
-    private List<MultipartFile> images;  // 이미지 목록
-
 }

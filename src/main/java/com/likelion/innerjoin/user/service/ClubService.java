@@ -7,6 +7,7 @@ import com.likelion.innerjoin.post.exception.UnauthorizedException;
 import com.likelion.innerjoin.post.model.entity.PostImage;
 import com.likelion.innerjoin.user.exception.SignUpIDException;
 import com.likelion.innerjoin.user.model.dto.request.ClubSignUpRequestDto;
+import com.likelion.innerjoin.user.model.dto.request.ClubUpdateRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubCategoryResponseDto;
 
 import com.likelion.innerjoin.user.model.dto.response.ClubResponseDto;
@@ -21,6 +22,7 @@ import com.likelion.innerjoin.user.exception.EmailValidationException;
 import com.likelion.innerjoin.user.repository.ClubRepository;
 import com.likelion.innerjoin.user.util.SessionVerifier;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +38,7 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final ClubCategoryRepository clubCategoryRepository;
     private final SessionVerifier sessionVerifier;
+    private final BlobService blobService;
     //private final BlobService blobService;
 
 
@@ -152,4 +155,52 @@ public class ClubService {
 
         clubRepository.save(club);
     }
+
+
+    @Transactional
+    public void updateClubInfo(Long clubId, ClubUpdateRequestDto updateRequestDto, MultipartFile image, HttpSession session) {
+        // 세션에서 클럽 정보 확인
+        Club club = checkClub(session);
+
+        // 요청된 clubId와 세션의 clubId 비교
+        if (!club.getId().equals(clubId)) {
+            throw new UnauthorizedException("해당 동아리 접근 권한이 없습니다.");
+        }
+
+        // 클럽 정보 업데이트
+        club.setName(updateRequestDto.getName());
+        club.setSchool(updateRequestDto.getSchool());
+        club.setEmail(updateRequestDto.getEmail());
+        club.setLoginId(updateRequestDto.getLoginId());
+        club.setPassword(updateRequestDto.getPassword());
+
+        // 카테고리 설정
+        if (updateRequestDto.getCategoryId() != null) {
+            ClubCategory category = clubCategoryRepository.findById(updateRequestDto.getCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + updateRequestDto.getCategoryId()));
+            club.setCategory(category);
+        }
+
+        // 기존 이미지 삭제 및 새로운 이미지 저장
+        if (image != null && !image.isEmpty()) {
+            String oldImageUrl = club.getImageUrl();
+            if (oldImageUrl != null) {
+                String oldFilename = oldImageUrl.substring(oldImageUrl.lastIndexOf('/') + 1);
+                blobService.deleteFile(oldFilename);
+            }
+
+            try {
+                String newImageUrl = blobService.storeFile(image.getOriginalFilename(), image.getInputStream(), image.getSize());
+                club.setImageUrl(newImageUrl);
+            } catch (IOException e) {
+                throw new ImageProcessingException("이미지 업로드 중 오류가 발생했습니다: " + e.getMessage(), e);
+            }
+        }
+
+        clubRepository.save(club);
+    }
+
+
+
+
 }

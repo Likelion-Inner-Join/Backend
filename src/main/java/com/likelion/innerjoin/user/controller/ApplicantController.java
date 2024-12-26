@@ -2,6 +2,7 @@ package com.likelion.innerjoin.user.controller;
 
 import com.likelion.innerjoin.common.response.CommonResponse;
 import com.likelion.innerjoin.user.model.dto.request.ApplicantSignUpRequestDto;
+import com.likelion.innerjoin.user.model.dto.request.ApplicantUpdateRequestDto;
 import com.likelion.innerjoin.user.model.dto.response.ApplicantResponseDto;
 import com.likelion.innerjoin.user.model.dto.response.ClubResponseDto;
 import com.likelion.innerjoin.user.service.ApplicantService;
@@ -39,5 +40,22 @@ public class ApplicantController {
     public CommonResponse<ApplicantResponseDto> getApplicantInfo(@PathVariable Long applicantId, HttpSession session) {
         ApplicantResponseDto applicantResponse = applicantService.getApplicantInfo(applicantId, session);
         return new CommonResponse<>(applicantResponse);
+    }
+
+    /**
+     * 지원자 정보 수정
+     *
+     * @param applicantId 지원자 ID
+     * @param updateRequestDto 지원자 수정 요청 DTO
+     * @param session 사용자 세션
+     * @return CommonResponse
+     */
+    @Operation(summary = "지원자 정보 수정 API", description = "지원자 정보를 수정.")
+    @PutMapping("/{applicantId}")
+    public CommonResponse<String> updateApplicantInfo(@PathVariable Long applicantId,
+                                                      @RequestBody ApplicantUpdateRequestDto updateRequestDto,
+                                                      HttpSession session) {
+        applicantService.updateApplicantInfo(applicantId, updateRequestDto, session);
+        return new CommonResponse<>("지원자 정보가 수정되었습니다.");
     }
 }
