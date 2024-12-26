@@ -18,6 +18,6 @@ public class ApplicationPutRequestDto {
     private ResultType meetingResult;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime meetingStartTime;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime meetingEndTime;
+//    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+//    private LocalDateTime meetingEndTime;
 }

@@ -10,5 +10,6 @@ import java.util.List;
 public interface MeetingTimeRepository extends JpaRepository<MeetingTime, Long> {
     List<MeetingTime> findByRecruiting(Recruiting recruiting);
     List<MeetingTime> findByRecruitingId(Long recruitingId);
+    MeetingTime findByMeetingStartTimeAndRecruiting(LocalDateTime startTime, Recruiting recruiting);
     MeetingTime findByMeetingStartTimeAndMeetingEndTimeAndRecruiting(LocalDateTime meetingStartTime, LocalDateTime meetingEndTime, Recruiting recruiting);
 }

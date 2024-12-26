@@ -134,9 +134,8 @@ public class ApplicationService {
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
-        MeetingTime meetingTime = meetingTimeRepository.findByMeetingStartTimeAndMeetingEndTimeAndRecruiting(
+        MeetingTime meetingTime = meetingTimeRepository.findByMeetingStartTimeAndRecruiting(
                 applicationPutRequestDto.getMeetingStartTime(),
-                applicationPutRequestDto.getMeetingEndTime(),
                 application.getRecruiting()
         );
         if(meetingTime == null) {
