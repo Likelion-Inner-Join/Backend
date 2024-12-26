@@ -134,21 +134,25 @@ public class ApplicationService {
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
-        MeetingTime meetingTime = meetingTimeRepository.findByMeetingStartTimeAndRecruiting(
-                applicationPutRequestDto.getMeetingStartTime(),
-                application.getRecruiting()
-        );
-        if(meetingTime == null) {
-            throw new MeetingTimeNotFound("면접시간이 존재하지 않습니다.");
+        if(applicationPutRequestDto.getMeetingStartTime() == null){
+            application.setMeetingTime(null);
+        }else if(application.getMeetingTime() == null || !application.getMeetingTime().getMeetingStartTime().equals(applicationPutRequestDto.getMeetingStartTime())) {
+            MeetingTime meetingTime = meetingTimeRepository.findByMeetingStartTimeAndRecruiting(
+                    applicationPutRequestDto.getMeetingStartTime(),
+                    application.getRecruiting()
+            );
+            if(meetingTime == null) {
+                throw new MeetingTimeNotFound("면접시간이 존재하지 않습니다.");
+            }
+
+            if(meetingTime.getApplicationList().size() >= meetingTime.getAllowedNum() && !meetingTime.getApplicationList().contains(application)){
+                throw new AllowedNumExceededException("허용 인원을 초과하였습니다.");
+            }
+            application.setMeetingTime(meetingTime);
         }
 
         application.setFormResult(applicationPutRequestDto.getFormResult());
         application.setMeetingResult(applicationPutRequestDto.getMeetingResult());
-
-        if(meetingTime.getApplicationList().size() >= meetingTime.getAllowedNum() && !meetingTime.getApplicationList().contains(application)){
-            throw new AllowedNumExceededException("허용 인원을 초과하였습니다.");
-        }
-        application.setMeetingTime(meetingTime);
 
         applicationRepository.save(application);
         return applicationMapper.toApplicationDto(application, false);
