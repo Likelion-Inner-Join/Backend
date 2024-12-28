@@ -57,18 +57,17 @@ public class ApplicantService {
     /**
      * 지원자 회원 정보 조회
      *
-     * @param applicantId 조회하려는 지원자 ID
      * @param session     사용자 세션
      * @return ApplicantResponseDto
      */
-    public ApplicantResponseDto getApplicantInfo(Long applicantId, HttpSession session) {
+    public ApplicantResponseDto getApplicantInfo(HttpSession session) {
         // 세션에서 사용자 정보 확인
         Applicant applicant = checkApplicant(session);
 
         // 요청된 applicantId와 세션의 applicantId 비교
-        if (!applicant.getId().equals(applicantId)) {
-            throw new UnauthorizedException("해당 지원자 접근 권한이 없습니다.");
-        }
+//        if (!applicant.getId().equals(applicantId)) {
+//            throw new UnauthorizedException("해당 지원자 접근 권한이 없습니다.");
+//        }
 
         return toApplicantResponseDto(applicant);
     }
@@ -95,32 +94,29 @@ public class ApplicantService {
                 .school(applicant.getSchool())
                 .major(applicant.getMajor())
                 .studentNumber(applicant.getStudentNumber())
-                .phoneNum(applicant.getPhoneNum())
                 .build();
     }
 
     /**
      * 지원자 정보 수정
      *
-     * @param applicantId 지원자 ID
      * @param updateRequestDto 지원자 수정 요청 DTO
      * @param session 사용자 세션
      */
     @Transactional
-    public void updateApplicantInfo(Long applicantId, ApplicantUpdateRequestDto updateRequestDto, HttpSession session) {
+    public void updateApplicantInfo(ApplicantUpdateRequestDto updateRequestDto, HttpSession session) {
         // 세션에서 사용자 정보 확인
         Applicant applicant = checkApplicant(session);
 
         // 요청된 applicantId와 세션의 applicantId 비교
-        if (!applicant.getId().equals(applicantId)) {
-            throw new UnauthorizedException("해당 지원자 접근 권한이 없습니다.");
-        }
+//        if (!applicant.getId().equals(applicantId)) {
+//            throw new UnauthorizedException("해당 지원자 접근 권한이 없습니다.");
+//        }
 
         // 지원자 정보 업데이트
         applicant.setName(updateRequestDto.getName());
         //applicant.setSchool(updateRequestDto.getSchool());
         applicant.setMajor(updateRequestDto.getMajor());
-        applicant.setPhoneNum(updateRequestDto.getPhoneNum());
         applicant.setPassword(updateRequestDto.getPassword());
         applicantRepository.save(applicant);
     }

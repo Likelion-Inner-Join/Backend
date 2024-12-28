@@ -12,5 +12,4 @@ public class ApplicantResponseDto {
     private String school;
     private String major;
     private String studentNumber;
-    private String phoneNum;
 }
