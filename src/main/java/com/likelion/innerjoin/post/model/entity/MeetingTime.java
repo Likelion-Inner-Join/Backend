@@ -39,6 +39,6 @@ public class MeetingTime extends DataEntity {
     @JoinColumn(name = "recruiting_id")
     private Recruiting recruiting;
 
-    @OneToMany(mappedBy = "meetingTime", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "meetingTime")
     private List<Application> applicationList;
 }
