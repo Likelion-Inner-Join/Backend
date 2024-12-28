@@ -36,26 +36,25 @@ public class ApplicantController {
 
     // 지원자 정보 조회
     @Operation(summary = "지원자 정보 조회 API", description = "지원자 정보를 조회.")
-    @GetMapping("/{applicantId}")
-    public CommonResponse<ApplicantResponseDto> getApplicantInfo(@PathVariable Long applicantId, HttpSession session) {
-        ApplicantResponseDto applicantResponse = applicantService.getApplicantInfo(applicantId, session);
+    @GetMapping()
+    public CommonResponse<ApplicantResponseDto> getApplicantInfo(HttpSession session) {
+        ApplicantResponseDto applicantResponse = applicantService.getApplicantInfo(session);
         return new CommonResponse<>(applicantResponse);
     }
 
     /**
      * 지원자 정보 수정
      *
-     * @param applicantId 지원자 ID
      * @param updateRequestDto 지원자 수정 요청 DTO
      * @param session 사용자 세션
      * @return CommonResponse
      */
     @Operation(summary = "지원자 정보 수정 API", description = "지원자 정보를 수정.")
-    @PutMapping("/{applicantId}")
-    public CommonResponse<String> updateApplicantInfo(@PathVariable Long applicantId,
+    @PutMapping()
+    public CommonResponse<String> updateApplicantInfo(
                                                       @RequestBody ApplicantUpdateRequestDto updateRequestDto,
                                                       HttpSession session) {
-        applicantService.updateApplicantInfo(applicantId, updateRequestDto, session);
+        applicantService.updateApplicantInfo(updateRequestDto, session);
         return new CommonResponse<>("지원자 정보가 수정되었습니다.");
     }
 }
