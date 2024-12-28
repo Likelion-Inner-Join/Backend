@@ -168,18 +168,17 @@ public class PostService {
 
         // Recruiting 엔티티 조회
         List<Recruiting> recruitingList = recruitingRepository.findByPostId(postId);
-        if (recruitingList == null || recruitingList.isEmpty()) {
-            throw new RecruitingNotFoundException("Recruiting not found with post_id: " + postId);
+        List<PostDetailResponseDTO.RecruitingDTO> recruitingDTOList = null;
+        if (!(recruitingList == null) && !recruitingList.isEmpty()) {
+            // Recruiting 리스트를 변환
+            recruitingDTOList = recruitingList.stream()
+                    .map(recruiting -> PostDetailResponseDTO.RecruitingDTO.builder()
+                            .recruitingId(recruiting.getId())
+                            .formId(recruiting.getForm().getId())
+                            .jobTitle(recruiting.getJobTitle())
+                            .build())
+                    .collect(Collectors.toList());
         }
-
-        // Recruiting 리스트를 변환
-        List<PostDetailResponseDTO.RecruitingDTO> recruitingDTOList = recruitingList.stream()
-                .map(recruiting -> PostDetailResponseDTO.RecruitingDTO.builder()
-                        .recruitingId(recruiting.getId())
-                        .formId(recruiting.getForm().getId())
-                        .jobTitle(recruiting.getJobTitle())
-                        .build())
-                .collect(Collectors.toList());
 
         // D-Day 계산
         int dDay = calculateDDay(post.getEndTime());
