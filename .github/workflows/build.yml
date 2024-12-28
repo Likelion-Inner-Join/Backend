@@ -37,15 +37,15 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PWD }}
           MYSQL_DATABASE: ${{ env.MYSQL_DB }}
-      redis:
-        image: redis:7.0.15
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd="redis-cli ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+#      redis:
+#        image: redis:7.0.15
+#        ports:
+#          - 6379:6379
+#        options: >-
+#          --health-cmd="redis-cli ping"
+#          --health-interval=10s
+#          --health-timeout=5s
+#          --health-retries=3
 
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -76,9 +76,9 @@ jobs:
         run: chmod +x gradlew
         shell: bash
 
-      # (4) Redis 설치
-      - name: Install redis-cli
-        run: sudo apt-get update && sudo apt-get install -y redis-tools
+#      # (4) Redis 설치
+#      - name: Install redis-cli
+#        run: sudo apt-get update && sudo apt-get install -y redis-tools
 
       # (5) Mysql 세팅 대기
       - name: Wait for MySQL
@@ -88,13 +88,13 @@ jobs:
             sleep 5
           done
 
-      # (6) Redis 세팅 대기
-      - name: Wait for Redis
-        run: |
-          until redis-cli -h ${{ env.REDIS_HOST }} ping; do
-            echo 'waiting for redis to be connectable...'
-            sleep 5
-          done
+#      # (6) Redis 세팅 대기
+#      - name: Wait for Redis
+#        run: |
+#          until redis-cli -h ${{ env.REDIS_HOST }} ping; do
+#            echo 'waiting for redis to be connectable...'
+#            sleep 5
+#          done
 
       # (7) Gradle build (Test 제외)
       - name: Build with Gradle
