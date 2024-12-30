@@ -87,7 +87,7 @@ public class PostController {
     }
 
 
-    @PutMapping("/{post_id}")
+    @PutMapping(value = "/{post_id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "홍보글 수정 api")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "홍보글 수정 성공"),

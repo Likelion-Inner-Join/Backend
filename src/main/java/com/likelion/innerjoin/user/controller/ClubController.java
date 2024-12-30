@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,7 +60,7 @@ public class ClubController {
     }
 
     @Operation(summary = "동아리 정보 수정 API", description = "동아리 정보를 수정.")
-    @PutMapping("/{clubId}")
+    @PutMapping(value = "/{clubId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CommonResponse<String>> updateClubInfo(@PathVariable Long clubId,
                                                                  @RequestPart("data") ClubUpdateRequestDto updateRequestDto,
                                                                  @RequestPart(value = "image", required = false) MultipartFile image,
