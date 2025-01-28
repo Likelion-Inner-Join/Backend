@@ -43,7 +43,7 @@ public class ApplicationService {
 
     @Transactional
     public Application postApplication (ApplicationRequestDto applicationRequestDto, HttpSession session) {
-        Applicant applicant = checkApplicant(session);
+        Applicant applicant = sessionVerifier.getApplicant(session);
         Recruiting recruiting = recruitingRepository.findById(applicationRequestDto.getRecruitingId())
                 .orElseThrow(() ->new RecruitingNotFoundException("모집중 직무가 존재하지 않습니다."));
 
@@ -111,7 +111,7 @@ public class ApplicationService {
     }
 
     public List<ApplicationDto> getApplicationList(HttpSession session) {
-        Applicant applicant = checkApplicant(session);
+        Applicant applicant = sessionVerifier.getApplicant(session);
 
         List<Application> applicationList = applicationRepository.findByApplicant(applicant);
 
@@ -125,7 +125,7 @@ public class ApplicationService {
             ApplicationPutRequestDto applicationPutRequestDto,
             Long applicationId,
             HttpSession session){
-        Club club = checkClub(session);
+        Club club = sessionVerifier.getClub(session);
 
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("id: " + applicationId + " 지원서가 존재하지 않습니다."));
@@ -160,7 +160,7 @@ public class ApplicationService {
 
     @Transactional
     public ApplicationDto updateFormScore(FormScoreDto formScoreDto, HttpSession session) {
-        Club club = checkClub(session);
+        Club club = sessionVerifier.getClub(session);
 
         Application application = applicationRepository.findById(formScoreDto.getApplicationId())
                 .orElseThrow(() -> new ApplicationNotFoundException("지원서가 존재하지 않습니다."));
@@ -189,7 +189,7 @@ public class ApplicationService {
 
     @Transactional
     public ApplicationDto updateMeetingScore(MeetingScoreDto meetingScoreDto, HttpSession session) {
-        Club club = checkClub(session);
+        Club club = sessionVerifier.getClub(session);
 
         Application application = applicationRepository.findById(meetingScoreDto.getApplicationId())
                 .orElseThrow(() -> new ApplicationNotFoundException("지원서가 존재하지 않습니다."));
@@ -205,7 +205,7 @@ public class ApplicationService {
 
     public ErrorCode sendEmail(EmailDto emailDto, HttpSession session) {
 
-        Club club = checkClub(session);
+        Club club = sessionVerifier.getClub(session);
         Post post = postRepository.findById(emailDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("권한이 없습니다."));
         if(!post.getClub().equals(club)) {
@@ -238,7 +238,7 @@ public class ApplicationService {
      */
     @Transactional
     public MeetingTimeResponseDTO selectMeetingTime (MeetingTimeSelectionDto dto, HttpSession session){
-        Applicant applicant = checkApplicant(session);
+        Applicant applicant = sessionVerifier.getApplicant(session);
         Application application = applicationRepository.findById(dto.getApplicationId())
                 .orElseThrow(()-> new ApplicationNotFoundException("지원 이력이 없습니다."));
         if(!application.getApplicant().equals(applicant)){
@@ -272,21 +272,5 @@ public class ApplicationService {
                 meetingTime.getMeetingStartTime(),
                 meetingTime.getMeetingEndTime()
         );
-    }
-
-    Applicant checkApplicant (HttpSession session) {
-        User user = sessionVerifier.verifySession(session);
-        if(!(user instanceof Applicant applicant)) {
-            throw new UnauthorizedException("권한이 없습니다.");
-        }
-        return applicant;
-    }
-
-    Club checkClub (HttpSession session) {
-        User user = sessionVerifier.verifySession(session);
-        if(!(user instanceof Club club)) {
-            throw new UnauthorizedException("권한이 없습니다.");
-        }
-        return club;
     }
 }
