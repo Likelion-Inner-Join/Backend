@@ -2,6 +2,7 @@ package com.likelion.innerjoin.post.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.likelion.innerjoin.common.entity.DataEntity;
+import com.likelion.innerjoin.user.model.entity.Club;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,10 @@ public class Recruiting extends DataEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name  = "post_id")
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "clud_id")
+    private Club club;
 
     @Column(name = "job_title")
     private String jobTitle;

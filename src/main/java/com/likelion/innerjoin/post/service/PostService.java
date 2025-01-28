@@ -240,6 +240,7 @@ public class PostService {
                 Recruiting recruiting = Recruiting.builder()
                         .form(form)
                         .post(post)
+                        .club(club)
                         .jobTitle(recruitingRequest.getJobTitle())
                         .build();
 
