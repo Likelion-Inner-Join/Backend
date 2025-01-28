@@ -58,6 +58,7 @@ public class ApplicationService {
         application.setRecruiting(recruiting);
 
         Post post = recruiting.getPost();
+        // recruitment type에 따른 처리
         if(post.getRecruitmentType() == RecruitmentType.FORM_AND_MEETING){
             application.setFormResult(ResultType.PENDING);
             application.setMeetingResult(ResultType.PENDING);
@@ -102,7 +103,7 @@ public class ApplicationService {
             }
         }else {
             Club club = (Club) user;
-            if (!club.equals(application.getRecruiting().getPost().getClub())) {
+            if (!club.equals(application.getRecruiting().getClub())) {
                 throw new UnauthorizedException("권한이 없습니다.");
             }
         }
@@ -130,7 +131,7 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("id: " + applicationId + " 지원서가 존재하지 않습니다."));
 
-        if(!application.getRecruiting().getPost().getClub().equals(club) ) {
+        if(!application.getRecruiting().getClub().equals(club) ) {
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
@@ -145,6 +146,7 @@ public class ApplicationService {
                 throw new MeetingTimeNotFound("면접시간이 존재하지 않습니다.");
             }
 
+            // todo : 허용 인원 처리 개선 필요. 동접자가 많지는 않으므로 locking으로 동시성 처리하기
             if(meetingTime.getApplicationList().size() >= meetingTime.getAllowedNum() && !meetingTime.getApplicationList().contains(application)){
                 throw new AllowedNumExceededException("허용 인원을 초과하였습니다.");
             }
@@ -165,7 +167,7 @@ public class ApplicationService {
         Application application = applicationRepository.findById(formScoreDto.getApplicationId())
                 .orElseThrow(() -> new ApplicationNotFoundException("지원서가 존재하지 않습니다."));
 
-        if(!application.getRecruiting().getPost().getClub().equals(club)) {
+        if(!application.getRecruiting().getClub().equals(club)) {
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
@@ -191,9 +193,10 @@ public class ApplicationService {
     public ApplicationDto updateMeetingScore(MeetingScoreDto meetingScoreDto, HttpSession session) {
         Club club = sessionVerifier.getClub(session);
 
+        // 지원서 확인
         Application application = applicationRepository.findById(meetingScoreDto.getApplicationId())
                 .orElseThrow(() -> new ApplicationNotFoundException("지원서가 존재하지 않습니다."));
-
+        // 권한 확인
         if(!application.getRecruiting().getPost().getClub().equals(club)) {
             throw new UnauthorizedException("권한이 없습니다.");
         }
@@ -214,7 +217,7 @@ public class ApplicationService {
 
         List<Application> application = applicationRepository.findAllById(emailDto.getApplicationIdList());
 
-        // 해당 post에 대한 지원자 이메일인지 검증은 일단 스킵
+        // todo : 해당 post에 대한 지원자 이메일인지 검증 필요해보임
         List<String> emailList = new ArrayList<>();
         for(Application app : application){
             emailList.add(app.getApplicant().getEmail());
@@ -239,25 +242,31 @@ public class ApplicationService {
     @Transactional
     public MeetingTimeResponseDTO selectMeetingTime (MeetingTimeSelectionDto dto, HttpSession session){
         Applicant applicant = sessionVerifier.getApplicant(session);
+        // 지원서 id 확인
         Application application = applicationRepository.findById(dto.getApplicationId())
                 .orElseThrow(()-> new ApplicationNotFoundException("지원 이력이 없습니다."));
+        // 권한 확인
         if(!application.getApplicant().equals(applicant)){
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
+        // 면접 시간 확인
         MeetingTime meetingTime = meetingTimeRepository.findById(dto.getMeetingTimeId())
                 .orElseThrow(() -> new MeetingTimeNotFound("면접시간이 존재하지 않습니다."));
+        // 권한 확인
         if(!meetingTime.getRecruiting().equals(application.getRecruiting())){
             throw new UnauthorizedException("권한이 없습니다.");
-        }
-        if(meetingTime.getAllowedNum()<= meetingTime.getApplicationList().size()){
-            throw new AllowedNumExceededException("면접 허용 인원을 초과했습니다.");
         }
 
         // 예약 종료 시간 확인
         LocalDateTime reservationEndTime = meetingTime.getRecruiting().getReservationEndTime();
         if (reservationEndTime != null && LocalDateTime.now().isAfter(reservationEndTime)) {
             throw new IllegalStateException("면접 예약이 종료되었습니다.");
+        }
+
+        // todo: 면접 시간 선택시 동시성 처리
+        if(meetingTime.getAllowedNum()<= meetingTime.getApplicationList().size()) {
+            throw new AllowedNumExceededException("면접 허용 인원을 초과했습니다.");
         }
 
         //면접 시간 설정
