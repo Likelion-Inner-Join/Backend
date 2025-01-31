@@ -146,7 +146,6 @@ public class ApplicationService {
                 throw new MeetingTimeNotFound("면접시간이 존재하지 않습니다.");
             }
 
-            // todo : 허용 인원 처리 개선 필요. 동접자가 많지는 않으므로 locking으로 동시성 처리하기
             if(meetingTime.getApplicationList().size() >= meetingTime.getAllowedNum() && !meetingTime.getApplicationList().contains(application)){
                 throw new AllowedNumExceededException("허용 인원을 초과하였습니다.");
             }
@@ -264,7 +263,6 @@ public class ApplicationService {
             throw new IllegalStateException("면접 예약이 종료되었습니다.");
         }
 
-        // todo: 면접 시간 선택시 동시성 처리
         if(meetingTime.getAllowedNum()<= meetingTime.getApplicationList().size()) {
             throw new AllowedNumExceededException("면접 허용 인원을 초과했습니다.");
         }

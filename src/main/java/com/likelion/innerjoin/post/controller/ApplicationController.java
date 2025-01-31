@@ -65,6 +65,11 @@ public class ApplicationController {
 
     @PutMapping("/{application_id}")
     @Operation(summary = "지원서 정보 수정용 api (동아리용)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공적인 응답"),
+            @ApiResponse(responseCode = "401", description = "권한이 없습니다."),
+            @ApiResponse(responseCode = "400", description = "허용 인원을 초과하였습니다.")
+    })
     public CommonResponse<ApplicationDto> updateApplication(
             @RequestBody ApplicationPutRequestDto applicationPutRequestDto,
             @PathVariable("application_id") Long applicationId,
