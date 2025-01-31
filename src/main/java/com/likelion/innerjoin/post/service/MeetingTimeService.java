@@ -53,7 +53,7 @@ public class MeetingTimeService {
         }
 
         // 기존 MeetingTime 삭제
-        List<MeetingTime> existingMeetingTimes = meetingTimeRepository.lockFindByRecruitingId(recruitingId);
+        List<MeetingTime> existingMeetingTimes = meetingTimeRepository.findByRecruitingId(recruitingId);
         if (!existingMeetingTimes.isEmpty()) {
             meetingTimeRepository.deleteAll(existingMeetingTimes);
         }

@@ -14,11 +14,11 @@ public interface MeetingTimeRepository extends JpaRepository<MeetingTime, Long> 
     List<MeetingTime> findByRecruiting(Recruiting recruiting);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    List<MeetingTime> lockFindByRecruitingId(Long recruitingId);
+    List<MeetingTime> findByRecruitingId(Long recruitingId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    MeetingTime lockFindByMeetingStartTimeAndRecruiting(LocalDateTime startTime, Recruiting recruiting);
+    MeetingTime findByMeetingStartTimeAndRecruiting(LocalDateTime startTime, Recruiting recruiting);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<MeetingTime> selectMeetingTimeById(Long id);
+    Optional<MeetingTime> findById(Long id);
 }

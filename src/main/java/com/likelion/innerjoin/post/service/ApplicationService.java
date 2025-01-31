@@ -138,7 +138,7 @@ public class ApplicationService {
         if(applicationPutRequestDto.getMeetingStartTime() == null){
             application.setMeetingTime(null);
         }else if(application.getMeetingTime() == null || !application.getMeetingTime().getMeetingStartTime().equals(applicationPutRequestDto.getMeetingStartTime())) {
-            MeetingTime meetingTime = meetingTimeRepository.lockFindByMeetingStartTimeAndRecruiting(
+            MeetingTime meetingTime = meetingTimeRepository.findByMeetingStartTimeAndRecruiting(
                     applicationPutRequestDto.getMeetingStartTime(),
                     application.getRecruiting()
             );
@@ -250,7 +250,7 @@ public class ApplicationService {
         }
 
         // 면접 시간 확인
-        MeetingTime meetingTime = meetingTimeRepository.selectMeetingTimeById(dto.getMeetingTimeId())
+        MeetingTime meetingTime = meetingTimeRepository.findById(dto.getMeetingTimeId())
                 .orElseThrow(() -> new MeetingTimeNotFound("면접시간이 존재하지 않습니다."));
         // 권한 확인
         if(!meetingTime.getRecruiting().equals(application.getRecruiting())){
